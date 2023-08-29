@@ -3,13 +3,11 @@
 
 int main(int argc, char* argv[])
 {
-    // printf("You have entered %d arguments:\n", argc);
- 
-    // for (int i = 0; i < argc; i++) {
-    //     printf("%s\n", argv[i]);
-    // }
-    // return 0;
-
+    if (argc < 2) { 
+        std::cerr<<"usage: "<<argv[0]<<" <n> <dt>"<<std::endl;
+        return -1;
+    }
+    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
     int n = atoi(argv[1]);
     float dt = atof(argv[2]);
 
@@ -50,13 +48,14 @@ int main(int argc, char* argv[])
         u[0] = u[n+1];
         u[n+2] = u[1];
         // std::cout << u[0] << " " << u[n+2] << std::endl;
-        if (timestamp%1000 == 0){
-            std::cout << timestamp << " " << nb_steps << "\n";
-        }
+        // if (timestamp%1000 == 0){
+        //     std::cout << timestamp << " " << nb_steps << "\n";
+        // }
     }
 
-    std::cout << nb_steps << std::endl;
-    std::cout << u[0] << " " << u[n+2] << std::endl;
+    std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elpased_seconds = end-start;
+    std::cerr<<"Time taken for n=" << n << " & dt="<< dt << " : " << elpased_seconds.count()<<std::endl;
 }
 
 
