@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     float v = 1;
     float x_c = 0.25;
 
-    float dx = (x_max - x_min) / 2;
+    float dx = (x_max - x_min) / n;
     float nb_steps = t_max/dt;
     float alpha = (v*dt)/(2*dx);
 

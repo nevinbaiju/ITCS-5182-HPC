@@ -1,3 +1,4 @@
+#!/bin/bash
 touch advection.o
 rm advection.o
 g++ advection.cpp -o advection.o
