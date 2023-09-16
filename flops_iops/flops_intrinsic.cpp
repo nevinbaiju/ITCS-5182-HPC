@@ -1,20 +1,18 @@
 #include <iostream>
-#include <immintrin.h>
 #include <vector>
 #include <chrono>
-
-void perform_addition(float a[], float b[], long int n){
-    #pragma omp parallel for //num_threads(4) schedule(static, 1)
-    for (int i = 0; i < n; i++) {
-        _mm256_add_ps(_mm256_load_ps(&a[0]), _mm256_load_ps(&b[0]));
-    }
-}
+#include "compute_kernel.h"
 
 int main() {
 
-    const long int numOperations = 1000000000;
-    alignas(32) float a[8] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
-    alignas(32) float b[8] = {2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+    const long int numOperations = 8*1000000;
+    float *a = new float[numOperations];
+    float *b = new float[numOperations];
+
+    for(int i=0; i<numOperations; i++){
+        a[i] = 1.0;
+        b[i] = 2.0;
+    }
     
     auto start = std::chrono::high_resolution_clock::now();
     perform_addition(a, b, numOperations);
@@ -25,6 +23,7 @@ int main() {
     double flops = (numOperations *8/ 1e9) / seconds;
     std::cout << "Number of operations: " << numOperations << std::endl;
     std::cout << "FLOPS: " << flops << " GFLOPS" << std::endl;
+    std::cerr << flops << std::endl;
     
     return 0;
 }
