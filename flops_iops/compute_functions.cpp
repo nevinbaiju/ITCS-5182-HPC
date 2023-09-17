@@ -12,7 +12,7 @@ void perform_addition(float a[], float b[], float result[], long int n) {
 
 void perform_addition_int(int a[], int b[], int result[], long int n) {
     #pragma omp parallel for //num_threads(4) schedule(static, 1)
-    for (int i = 0; i < n; i += 32) {
+    for (int i = 0; i < n; i += 16) {
         _mm256_add_epi32(_mm256_loadu_si256((__m256i*)&a[i]), 
                          _mm256_loadu_si256((__m256i*)&b[i]));
     }

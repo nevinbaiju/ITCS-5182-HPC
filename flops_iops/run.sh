@@ -1,5 +1,8 @@
 #!/bin/bash
 
+rm slurm*
+rm results_*
+
 g++ flops_intrinsic.cpp compute_functions.cpp \
 -march=native -fopenmp -mavx2 -march=native -mtune=haswell -O0 -o flops
 

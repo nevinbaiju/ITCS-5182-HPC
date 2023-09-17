@@ -29,5 +29,9 @@ int main() {
     std::cout << "FLOPS: " << flops << " GFLOPS" << std::endl;
     std::cerr << flops << std::endl;
     
+    delete[] a;
+    delete[] b;
+    delete[] result;
+    
     return 0;
 }

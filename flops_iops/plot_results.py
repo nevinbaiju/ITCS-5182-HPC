@@ -18,3 +18,8 @@ plot_results('results_O0')
 plot_results('results_O1')
 plot_results('results_O2')
 plot_results('results_O3')
+
+plot_results('results_O0int')
+plot_results('results_O1int')
+plot_results('results_O2int')
+plot_results('results_O3int')
