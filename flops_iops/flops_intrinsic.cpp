@@ -34,7 +34,7 @@ int main() {
     //     std::cout << result[i] << std::endl;
     // }
 
-    double flops = (numOperations*8*num_threads/ 1e9) / seconds;
+    double flops = (numOperations*8*num_threads*2/ 1e9) / seconds;
     std::cout << "Number of operations: " << numOperations*8*num_threads << std::endl;
     std::cout << "FLOPS: " << flops << " GFLOPS" << std::endl;
     std::cerr << flops << std::endl;
