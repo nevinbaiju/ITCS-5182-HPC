@@ -84,39 +84,17 @@ void perform_addition(__m256 a, __m256 b, long int n, float result[], float temp
         }
         // #pragma omp critical
         {
+            _mm_a1 = _mm256_add_ps(_mm_a1, _mm_a2);
+            _mm_a3 = _mm256_add_ps(_mm_a3, _mm_a4);
+            _mm_a5 = _mm256_add_ps(_mm_a5, _mm_a6);
+            _mm_a7 = _mm256_add_ps(_mm_a7, _mm_a8);
+
+            _mm_a1 = _mm256_add_ps(_mm_a1, _mm_a3);
+            _mm_a5 = _mm256_add_ps(_mm_a5, _mm_a7);
+
+            _mm_a1 = _mm256_add_ps(_mm_a1, _mm_a5);
+
             _mm256_store_ps(&temp_result[0], _mm_a1);
-            for(int i=0; i<8; i++){
-                result[i] += temp_result[i];
-            }
-            _mm256_store_ps(&temp_result[0], _mm_a2);
-            for(int i=0; i<8; i++){
-                result[i] += temp_result[i];
-            }
-            _mm256_store_ps(&temp_result[0], _mm_a3);
-            for(int i=0; i<8; i++){
-                result[i] += temp_result[i];
-            }
-            _mm256_store_ps(&temp_result[0], _mm_a4);
-            for(int i=0; i<8; i++){
-                result[i] += temp_result[i];
-            }
-
-            _mm256_store_ps(&temp_result[0], _mm_a5);
-            for(int i=0; i<8; i++){
-                result[i] += temp_result[i];
-            }
-
-            _mm256_store_ps(&temp_result[0], _mm_a6);
-            for(int i=0; i<8; i++){
-                result[i] += temp_result[i];
-            }
-
-            _mm256_store_ps(&temp_result[0], _mm_a7);
-            for(int i=0; i<8; i++){
-                result[i] += temp_result[i];
-            }
-
-            _mm256_store_ps(&temp_result[0], _mm_a8);
             for(int i=0; i<8; i++){
                 result[i] += temp_result[i];
             }
