@@ -12,14 +12,17 @@ def plot_results(filename):
     plt.ylabel('Sample Count')
     optimization = filename.split('_')[1]
     plt.title(f'GFlops achieved for -{optimization} optimization')
-    plt.savefig(f'{optimization}.png')
+    print(f"Flops for {optimization}")
+    print(f"Average Flops {results.mean()}")
+    print(f"Min Flops {results.min()}")
+    print(f"Max Flops {results.max()}\n")
 
 plot_results('results_O0')
 plot_results('results_O1')
 plot_results('results_O2')
 plot_results('results_O3')
 
-plot_results('results_O0int')
-plot_results('results_O1int')
-plot_results('results_O2int')
-plot_results('results_O3int')
+# plot_results('results_O0int')
+# plot_results('results_O1int')
+# plot_results('results_O2int')
+# plot_results('results_O3int')

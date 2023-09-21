@@ -43,23 +43,23 @@ void perform_addition(__m256 a, __m256 b, long int n, float result[], float temp
     #pragma omp parallel
     {
         for (int i = 0; i < n; i ++) {
-            _mm256_add_ps(_mm_a, _mm_b);
+            _mm_a = _mm256_add_ps(_mm_a, _mm_b);
             // __m256 temp_result = _mm256_add_ps(_mm256_loadu_ps(&a[i]), _mm256_loadu_ps(&b[i]));
             // _mm256_storeu_ps(&result[i], temp_result);
         }
-    //     #pragma omp critical
-    //     {
-    //         _mm256_store_ps(&temp_result[0], _mm_a);
-    //         result[0] += temp_result[0];
-    //         // for(int i=0; i<8; i++){
-    //         //     result[i] += temp_result[i];
-    //         // }
-    //     }
-    // }
-    // std::cout << "Done: " << result[0] << std::endl;
+        #pragma omp critical
+        {
+            _mm256_store_ps(&temp_result[0], _mm_a);
+            result[0] += temp_result[0];
+            // for(int i=0; i<8; i++){
+            //     result[i] += temp_result[i];
+            // }
+        }
+    }
+    std::cout << "Done: " << result[0] << std::endl;
     // for(int i=0; i<8; i++){
     //     std::cout << result[i] << ", " << std::endl;
-    }
+    // }
     
     // return a;
 }
