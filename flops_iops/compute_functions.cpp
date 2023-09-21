@@ -40,30 +40,49 @@
 void perform_addition(__m256 a, __m256 b, long int n, float result[], float temp_result[]) {
     #pragma omp parallel
     {
-        __m256 _mm_a = _mm256_setzero_ps();
-        __m256 _mm_b = _mm256_set_ps(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0);
+        __m256 _mm_a1 = _mm256_setzero_ps();
+        __m256 _mm_b1 = _mm256_set1_ps(2.0);
+        __m256 _mm_c1 = _mm256_set1_ps(1.0);
 
-        __m256 _mm_c = _mm256_setzero_ps();
-        __m256 _mm_d = _mm256_set_ps(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0);
-        for (int i = 0; i < n; i +=2) {
-            _mm_a = _mm256_add_ps(_mm_a, _mm_b);
-            _mm_c = _mm256_mul_ps(_mm_c, _mm_d);
+        __m256 _mm_a2 = _mm256_setzero_ps();
+        __m256 _mm_b2 = _mm256_set1_ps(2.0);
+        __m256 _mm_c2 = _mm256_set1_ps(1);
+
+        __m256 _mm_a3 = _mm256_setzero_ps();
+        __m256 _mm_b3 = _mm256_set1_ps(2.0);
+        __m256 _mm_c3 = _mm256_set1_ps(1);
+
+        __m256 _mm_a4 = _mm256_setzero_ps();
+        __m256 _mm_b4 = _mm256_set1_ps(2.0);
+        __m256 _mm_c4 = _mm256_set1_ps(1);
+
+        for (int i = 0; i < n; i +=4) {
+            _mm_a1 = _mm256_fmadd_ps(_mm_a1, _mm_b1, _mm_c1);
+            _mm_a2 = _mm256_fmadd_ps(_mm_a2, _mm_b2, _mm_c2);
+            _mm_a3 = _mm256_fmadd_ps(_mm_a3, _mm_b3, _mm_c3);
+            _mm_a4 = _mm256_fmadd_ps(_mm_a4, _mm_b4, _mm_c4);
         }
         #pragma omp critical
         {
-            _mm256_store_ps(&temp_result[0], _mm_a);
-            // result[0] += temp_result[0];
+            _mm256_store_ps(&temp_result[0], _mm_a1);
+            for(int i=0; i<8; i++){
+                result[i] += temp_result[i];
+            }
+            _mm256_store_ps(&temp_result[0], _mm_a2);
+            for(int i=0; i<8; i++){
+                result[i] += temp_result[i];
+            }
+            _mm256_store_ps(&temp_result[0], _mm_a3);
+            for(int i=0; i<8; i++){
+                result[i] += temp_result[i];
+            }
+            _mm256_store_ps(&temp_result[0], _mm_a4);
             for(int i=0; i<8; i++){
                 result[i] += temp_result[i];
             }
         }
     }
     std::cout << "Done: " << result[0] << std::endl;
-    // for(int i=0; i<8; i++){
-    //     std::cout << result[i] << ", " << std::endl;
-    // }
-    
-    // return a;
 }
 
 void perform_addition_int(int a[], int b[], int result[], long int n) {
