@@ -72,7 +72,7 @@ void perform_addition(__m256 a, __m256 b, long int n, float result[], float temp
         __m256 _mm_b8 = _mm256_set1_ps(2.0);
         __m256 _mm_c8 = _mm256_set1_ps(1);
 
-        for (int i = 0; i < n; i +=16) {
+        for (int i = 0; i < n; i +=8) {
             _mm_a1 = _mm256_fmadd_ps(_mm_a1, _mm_b1, _mm_c1);
             _mm_a2 = _mm256_fmadd_ps(_mm_a2, _mm_b2, _mm_c2);
             _mm_a3 = _mm256_fmadd_ps(_mm_a3, _mm_b3, _mm_c3);
