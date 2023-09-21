@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm slurm*
+# rm slurm*
 rm results_*
 
 g++ flops_intrinsic.cpp compute_functions.cpp \
