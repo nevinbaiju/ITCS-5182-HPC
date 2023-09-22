@@ -37,9 +37,11 @@
 //     // return a;
 // }
 
-void perform_addition(__m256 a, __m256 b, long int n, float result[], float temp_result[]) {
+void perform_addition(long int n, float result[]) {
     #pragma omp parallel
     {
+        alignas(32) float temp_result[8];
+        
         __m256 _mm_a1 = _mm256_setzero_ps();
         __m256 _mm_b1 = _mm256_set1_ps(2.0);
         __m256 _mm_c1 = _mm256_set1_ps(1.0);
@@ -77,10 +79,10 @@ void perform_addition(__m256 a, __m256 b, long int n, float result[], float temp
             _mm_a2 = _mm256_fmadd_ps(_mm_a2, _mm_b2, _mm_c2);
             _mm_a3 = _mm256_fmadd_ps(_mm_a3, _mm_b3, _mm_c3);
             _mm_a4 = _mm256_fmadd_ps(_mm_a4, _mm_b4, _mm_c4);
-            _mm_a5 = _mm256_fmadd_ps(_mm_a4, _mm_b4, _mm_c5);
-            _mm_a6 = _mm256_fmadd_ps(_mm_a4, _mm_b4, _mm_c6);
-            _mm_a7 = _mm256_fmadd_ps(_mm_a4, _mm_b4, _mm_c7);
-            _mm_a8 = _mm256_fmadd_ps(_mm_a4, _mm_b4, _mm_c8);
+            _mm_a5 = _mm256_fmadd_ps(_mm_a5, _mm_b5, _mm_c5);
+            _mm_a6 = _mm256_fmadd_ps(_mm_a6, _mm_b6, _mm_c6);
+            _mm_a7 = _mm256_fmadd_ps(_mm_a7, _mm_b7, _mm_c7);
+            _mm_a8 = _mm256_fmadd_ps(_mm_a8, _mm_b8, _mm_c8);
         }
         // #pragma omp critical
         {
@@ -103,12 +105,73 @@ void perform_addition(__m256 a, __m256 b, long int n, float result[], float temp
     std::cout << "Done: " << result[0] << std::endl;
 }
 
-void perform_addition_int(int a[], int b[], int result[], long int n) {
-    #pragma omp parallel for //num_threads(4) schedule(static, 1)
-    for (int i = 0; i < n; i += 8*8) {
-        for (int j = 0; j < 8; ++j) {
-            _mm256_add_epi32(_mm256_loadu_si256((__m256i*)&a[i+j*8]), 
-                            _mm256_loadu_si256((__m256i*)&b[i+j*8]));
+// void perform_addition_int(int a[], int b[], int result[], long int n) {
+//     #pragma omp parallel for //num_threads(4) schedule(static, 1)
+//     for (int i = 0; i < n; i += 8*8) {
+//         for (int j = 0; j < 8; ++j) {
+//             _mm256_add_epi32(_mm256_loadu_si256((__m256i*)&a[i+j*8]), 
+//                             _mm256_loadu_si256((__m256i*)&b[i+j*8]));
+//         }
+//     }
+// }
+
+void perform_addition_int(long int n, int result[]) {
+    #pragma omp parallel
+    {
+        alignas(32) int temp_result[8];
+
+        __m256i _mm_a1 = _mm256_set1_epi32(0);
+        __m256i _mm_b1 = _mm256_set1_epi32(2.0);
+
+        __m256i _mm_a2 = _mm256_set1_epi32(0);
+        __m256i _mm_b2 = _mm256_set1_epi32(2.0);
+
+        __m256i _mm_a3 = _mm256_set1_epi32(0);
+        __m256i _mm_b3 = _mm256_set1_epi32(2.0);
+
+        __m256i _mm_a4 = _mm256_set1_epi32(0);
+        __m256i _mm_b4 = _mm256_set1_epi32(2.0);
+
+        __m256i _mm_a5 = _mm256_set1_epi32(0);
+        __m256i _mm_b5 = _mm256_set1_epi32(2.0);
+
+        __m256i _mm_a6 = _mm256_set1_epi32(0);
+        __m256i _mm_b6 = _mm256_set1_epi32(2.0);
+
+        __m256i _mm_a7 = _mm256_set1_epi32(0);
+        __m256i _mm_b7 = _mm256_set1_epi32(2.0);
+
+        __m256i _mm_a8 = _mm256_set1_epi32(0);
+        __m256i _mm_b8 = _mm256_set1_epi32(2.0);
+
+        for (int i = 0; i < n; i +=8) {
+            _mm_a1 = _mm256_add_epi32(_mm_a1, _mm_b1);
+            _mm_a2 = _mm256_add_epi32(_mm_a2, _mm_b2);
+            _mm_a3 = _mm256_add_epi32(_mm_a3, _mm_b3);
+            _mm_a4 = _mm256_add_epi32(_mm_a4, _mm_b4);
+            _mm_a5 = _mm256_add_epi32(_mm_a5, _mm_b5);
+            _mm_a6 = _mm256_add_epi32(_mm_a6, _mm_b6);
+            _mm_a7 = _mm256_add_epi32(_mm_a7, _mm_b7);
+            _mm_a8 = _mm256_add_epi32(_mm_a8, _mm_b8);
+        }
+        // #pragma omp critical
+        {
+            _mm_a1 = _mm256_add_epi32(_mm_a1, _mm_a2);
+            _mm_a3 = _mm256_add_epi32(_mm_a3, _mm_a4);
+            _mm_a5 = _mm256_add_epi32(_mm_a5, _mm_a6);
+            _mm_a7 = _mm256_add_epi32(_mm_a7, _mm_a8);
+
+            _mm_a1 = _mm256_add_epi32(_mm_a1, _mm_a3);
+            _mm_a5 = _mm256_add_epi32(_mm_a5, _mm_a7);
+
+            _mm_a1 = _mm256_add_epi32(_mm_a1, _mm_a5);
+
+            _mm256_storeu_si256((__m256i*)temp_result, _mm_a1);
+            // _mm256_store_epi32(&temp_result[0], _mm_a1);
+            for(int i=0; i<8; i++){
+                result[i] += temp_result[i];
+            }
         }
     }
+    std::cout << "Done: " << result[0] << std::endl;
 }

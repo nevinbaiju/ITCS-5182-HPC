@@ -2,36 +2,30 @@
 #include <vector>
 #include <chrono>
 #include "compute_kernel.h"
+#include <omp.h>
 
 int main() {
 
-    const long int numOperations = 8*1000000;
-    int *a = new int[numOperations];
-    int *b = new int[numOperations];
-    int *result = new int[numOperations];
+    const long int numOperations = 1000000;
+    alignas(32) int result[8];
 
-    for(int i=0; i<numOperations; i++){
-        a[i] = 1.0;
-        b[i] = 2.0;
+    int num_threads;
+    #pragma omp parallel
+    {
+        num_threads = omp_get_num_threads();
     }
+    std::cout << "Total Threads: " << num_threads << "\n";
     
     auto start = std::chrono::high_resolution_clock::now();
-    perform_addition_int(a, b, result, numOperations);
+    perform_addition_int(numOperations, result);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
     double seconds = elapsed_seconds.count();   
-    // for(int i=numOperations-20; i<numOperations; i++){
-    //     std::cout << result[i] << std::endl;
-    // }
 
-    double flops = (numOperations/ 1e9) / seconds;
-    std::cout << "Number of operations: " << numOperations << std::endl;
+    double flops = (numOperations*8*num_threads/ 1e9) / seconds;
+    std::cout << "Number of operations: " << numOperations*8*num_threads << std::endl;
     std::cout << "FLOPS: " << flops << " GFLOPS" << std::endl;
     std::cerr << flops << std::endl;
-    
-    delete[] a;
-    delete[] b;
-    delete[] result;
     
     return 0;
 }
