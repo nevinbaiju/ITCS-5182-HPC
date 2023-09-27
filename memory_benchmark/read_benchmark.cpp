@@ -4,6 +4,7 @@
 #include <chrono>
 #include <immintrin.h>  // AVX intrinsics
 #include <string>
+#include <omp.h>
 
 // #define ARRAY_SIZE (2000*(1024*1024))/4  // Adjust the array size as needed
 
@@ -22,12 +23,14 @@ int main(int argc, char *argv[]) {
     }
     unsigned int sum = 0;
     __m256i _m_sum = _mm256_setzero_si256();
+    __m256i data;
     int sum_array[8];
 
     ////////////////////// Timing block /////////////////////////////////////////////////////
     auto start = std::chrono::high_resolution_clock::now();
+    #pragma omp for
     for (int i = 0; i < mem_size; i += 8) {
-        __m256i data = _mm256_stream_load_si256((__m256i *)&array[0]);
+        data = _mm256_stream_load_si256((__m256i *)&array[0]);
         _m_sum = _mm256_add_epi32(_m_sum, data);
         _mm256_storeu_si256((__m256i *)sum_array, _m_sum);
     
@@ -37,7 +40,7 @@ int main(int argc, char *argv[]) {
     }
     auto end = std::chrono::high_resolution_clock::now();
     /////////////////////////////////////////////////////////////////////////////////////////
-    
+
     std::chrono::duration<double> elapsed_seconds = end - start;
     double seconds = elapsed_seconds.count();   
     
