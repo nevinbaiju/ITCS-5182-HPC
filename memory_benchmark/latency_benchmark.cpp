@@ -4,6 +4,12 @@
 #include <string>
 #include <unordered_set>
 
+void iterate_ll(int *ll, int n){
+    for(int i=0; i<n; i++){
+        std::cout << i << ":" << ll[i] << std::endl;
+    }
+}
+
 int main(int argc, char* argv[]){
     if (argc < 2){
         std::cout << "Usage: ./write_benchmark <memory size (kb)>\n";
@@ -12,26 +18,39 @@ int main(int argc, char* argv[]){
     int n = std::stoi(argv[1])*(1024/sizeof(int));
     int *ll_arr = new int[n];
 
-    int middle = (n-1)/2;
     for(int i=0; i<n; i++){
-        if(i == middle){
-            ll_arr[i] = 0;
-        }
-        else if (i > middle){
-            ll_arr[i] = (n-1) - i + 1;
-        }
-        else{
-            ll_arr[i] = (n-1) - i;
-        }
+        ll_arr[i] = 0;
     }
-
     int current = 0;
-    long int num_accesses = 1e10;
+    int assigned = 1;
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    int next_index_candidate = std::rand() % (n);
+    while(next_index_candidate == 0){
+        next_index_candidate = std::rand() % (n);
+    }
+    
+    ll_arr[current] = next_index_candidate;
+    current = ll_arr[current];
+
+    while(assigned < n-1){
+        next_index_candidate = std::rand() % (n);
+        while((ll_arr[next_index_candidate] != 0) | (next_index_candidate == current) | (current == ll_arr[next_index_candidate])){
+            next_index_candidate = std::rand() % (n);
+        }
+        ll_arr[current] = next_index_candidate;
+        current = ll_arr[current];
+        assigned++;
+    }
+    std::cout << "Finished creating Linked List" << std::endl;
+
+
+    current = 0;
+    long int num_accesses = 1e6;
     int nb_iters = 10;
 
     auto start = std::chrono::high_resolution_clock::now();
     for(int i=0; i<nb_iters; i++){
-        for(int i=0; i<n; i++){
+        for(int i=0; i<num_accesses; i++){
             current = ll_arr[current];
             // std::cout << current << std::endl;
         }
