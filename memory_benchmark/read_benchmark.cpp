@@ -31,11 +31,16 @@ int main(int argc, char *argv[]) {
         _m_sum = _mm256_add_epi32(_m_sum, data);
     }
     ////////////////////// Timing block /////////////////////////////////////////////////////
+    int nbiter = 10;
     auto start = std::chrono::high_resolution_clock::now();
-    #pragma omp for
-    for (int i = 0; i < arr_size; i += 8) {
-        data = _mm256_stream_load_si256((__m256i *)&array[0]);
-        _m_sum = _mm256_add_epi32(_m_sum, data);
+    for(int i=0; i<nbiter; i++)
+    {
+
+        #pragma omp parallel for schedule(dynamic, 2048)
+        for (int i = 0; i < arr_size; i += 8) {
+            data = _mm256_stream_load_si256((__m256i *)&array[i]);
+            _m_sum = _mm256_add_epi32(_m_sum, data);
+        }
     }
     auto end = std::chrono::high_resolution_clock::now();
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +52,7 @@ int main(int argc, char *argv[]) {
     double seconds = elapsed_seconds.count();   
     
     std::cout << "Sum: " << sum << std::endl;
-    double read_bandwidth = (arr_size * sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
+    double read_bandwidth = (nbiter*arr_size * sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
 
     std::cout << "Read Bandwidth: " << read_bandwidth << " GB/s\n";
 
