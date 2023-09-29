@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
     double read_bandwidth = (arr_size * sizeof(int)) / (seconds * 1024 * 1024 * 1024); // MB/s
 
     std::cout << "Read-Write Bandwidth: " << read_bandwidth << " GB/s\n";
+    std::cerr << read_bandwidth << std::endl;
     
     free(arr1);
     free(arr2);

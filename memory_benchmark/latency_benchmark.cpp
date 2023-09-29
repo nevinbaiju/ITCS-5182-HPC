@@ -61,8 +61,10 @@ int main(int argc, char* argv[]){
     std::chrono::duration<double, std::nano> elapsed_seconds = end - start;
     double nano_seconds = elapsed_seconds.count();
 
+    double latency = nano_seconds / (num_accesses*nb_iters);
     std::cout << "Time taken: " << nano_seconds << " ns" << std::endl;
-    std::cout << "Latency: " << nano_seconds / (num_accesses*nb_iters) << " ns"<< std::endl;
+    std::cout << "Latency: " << latency << " ns"<< std::endl;
+    std::cerr << latency << std::endl;
 
     free(ll_arr);
 
