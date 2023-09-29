@@ -12,7 +12,7 @@ all: $(TARGETS)
 read:
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) read_benchmark.cpp -o read
 write:
-	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) read_benchmark.cpp -o write
+	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) write_benchmark.cpp -o write
 read_write:
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) read_write_benchmark.cpp -o read_write
 latency:
@@ -32,5 +32,13 @@ run_latency_core_structure:
 	./latency_core_structure 204800
 run_all: run_read run_write run_read_write run_latency run_latency_core_structure
 
+bench:
+	./bench.sh
+
+bench_centaurus:
+	sbatch --partition=Centaurus --chdir=`pwd` --time=02:00:00 --ntasks=1 --cpus-per-task=16 --mem=4G --job-name=memory_bench bench.sh
+
 clean:
 	rm -f $(TARGETS)
+	rm -rf results
+	rm -rf plots
