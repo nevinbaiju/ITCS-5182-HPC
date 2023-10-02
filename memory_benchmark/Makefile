@@ -32,10 +32,10 @@ run_latency_core_structure:
 	./latency_core_structure 204800
 run_all: run_read run_write run_read_write run_latency run_latency_core_structure
 
-bench:
+bench: read
 	./bench.sh
 
-bench_centaurus:
+bench_centaurus: read
 	sbatch --partition=Centaurus --chdir=`pwd` --time=02:00:00 --ntasks=1 --cpus-per-task=16 --mem=4G --job-name=memory_bench bench.sh
 
 clean:
