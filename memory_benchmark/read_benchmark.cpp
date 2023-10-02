@@ -52,12 +52,23 @@ int main(int argc, char *argv[]) {
     {
         auto start = std::chrono::high_resolution_clock::now();
         int i;
-        __m256i data;
-        __m256i _m_sum_local = _mm256_setzero_si256();
+        __m256i data1, data2, data3, data4;
+        __m256i _m_sum_local_1 = _mm256_setzero_si256();
+        __m256i _m_sum_local_2 = _mm256_setzero_si256();
+        __m256i _m_sum_local_3 = _mm256_setzero_si256();
+        __m256i _m_sum_local_4 = _mm256_setzero_si256();
+
         for(int iter=0; iter<nbiter; iter++){ 
-            for (i=0; i<arr_size; i+=8){
-                data = _mm256_stream_load_si256((__m256i *)&array[i]);
-                _m_sum_local = _mm256_add_epi32(_m_sum_local, data);
+            for (i=0; i<arr_size; i+=32){
+                data1 = _mm256_stream_load_si256((__m256i *)&array[i]);
+                data2 = _mm256_stream_load_si256((__m256i *)&array[i+8]);
+                data3 = _mm256_stream_load_si256((__m256i *)&array[i+16]);
+                data4 = _mm256_stream_load_si256((__m256i *)&array[i+24]);
+                
+                _m_sum_local_1 = _mm256_add_epi32(_m_sum_local_1, data1);
+                _m_sum_local_2 = _mm256_add_epi32(_m_sum_local_2, data2);
+                _m_sum_local_3 = _mm256_add_epi32(_m_sum_local_3, data3);
+                _m_sum_local_4 = _mm256_add_epi32(_m_sum_local_4, data4);
             }
         }
         auto end = std::chrono::high_resolution_clock::now();
@@ -65,7 +76,10 @@ int main(int argc, char *argv[]) {
         {
             std::chrono::duration<double> elapsed_seconds = end - start;
             seconds += elapsed_seconds.count();
-            _m_sum = _mm256_add_epi32(_m_sum_local, _m_sum);
+            _m_sum = _mm256_add_epi32(_m_sum, _m_sum_local_1);
+            _m_sum = _mm256_add_epi32(_m_sum, _m_sum_local_2);
+            _m_sum = _mm256_add_epi32(_m_sum, _m_sum_local_3);
+            _m_sum = _mm256_add_epi32(_m_sum, _m_sum_local_4);
         }
     }
     _mm256_storeu_si256((__m256i *)sum_array, _m_sum);
