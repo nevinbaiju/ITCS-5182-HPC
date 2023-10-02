@@ -57,5 +57,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Read Bandwidth: " << read_bandwidth << " GB/s\n";
     std::cerr << read_bandwidth << std::endl;
 
+    free(array);
+
     return 0;
 }
