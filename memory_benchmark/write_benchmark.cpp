@@ -2,63 +2,60 @@
 #include <iostream>
 #include <stdlib.h>
 #include <chrono>
-#include <omp.h>
 #include <immintrin.h>  // AVX intrinsics
+#include <string>
+#include <omp.h>
+
+// #define ARRAY_SIZE (2000*(1024*1024))/4  // Adjust the array size as needed
 
 int main(int argc, char *argv[]) {
     
     if (argc < 2){
-        std::cout << "Usage: ./write_benchmark <memory size (kb)>\n";
+        std::cout << "Usage: ./read_benchmark <memory size (kb)>\n";
         exit(0);
     }
     int num_threads = omp_get_num_threads();
-    int arr_size = int((std::stoi(argv[1])*1024)/4);
-    std::cout << "Array size: " << (std::stoi(argv[1])*1024)/4 << std::endl;
+    int arr_size = (std::stoi(argv[1])*1024)/(sizeof(int));
 
-    int *array1, *array2, *array3, *array4;
-    int allocate_status;
-    allocate_status = posix_memalign((void **)&array1, 32, (arr_size/4) * 32);
-    allocate_status = posix_memalign((void **)&array2, 32, (arr_size/4) * 32);
-    allocate_status = posix_memalign((void **)&array3, 32, (arr_size/4) * 32);
-    allocate_status = posix_memalign((void **)&array4, 32, (arr_size/4) * 32);
-    __m256i zero_vals = _mm256_setzero_si256();
+    int *array;
+    int allocate_status = posix_memalign((void **)&array, 32*8*4, arr_size * 32);
+    int nbiter = 25;
+    double seconds = 0;
 
-    int nb_iters = 20;
     ////////////////////// Timing block /////////////////////////////////////////////////////
-    auto start = std::chrono::high_resolution_clock::now();
-    for(int i=0; i<nb_iters; i++)
+
+    #pragma omp parallel
     {
-        #pragma omp parallel
-        {
-            for (int i = 0; i < (arr_size/4); i += 8) {
-                _mm256_stream_si256((__m256i *)&array1[i], zero_vals);
-                _mm256_stream_si256((__m256i *)&array2[i], zero_vals);
-                _mm256_stream_si256((__m256i *)&array3[i], zero_vals);
-                _mm256_stream_si256((__m256i *)&array4[i], zero_vals);
+        int i;
+        int tid = omp_get_thread_num();
+        int chuck_start = tid*(arr_size/num_threads);
+        int chuck_end = (tid+1)*(arr_size/num_threads);
+        __m256i data_1 = _mm256_setzero_si256();
+        __m256i data_2 = _mm256_setzero_si256();
+        __m256i data_3 = _mm256_setzero_si256();
+        __m256i data_4 = _mm256_setzero_si256();
+        auto start = std::chrono::high_resolution_clock::now();
+        for(int iter=0; iter<nbiter; iter++){ 
+            for (i=chuck_start; i<chuck_end; i+=32){
+                _mm256_storeu_si256((__m256i *)&array[i], data_1);
+                _mm256_storeu_si256((__m256i *)&array[i+8], data_2);
+                _mm256_storeu_si256((__m256i *)&array[i+16], data_3);
+                _mm256_storeu_si256((__m256i *)&array[i+24], data_4);
             }
         }
+        auto end = std::chrono::high_resolution_clock::now();
+        #pragma omp critical
+        {
+            std::chrono::duration<double> elapsed_seconds = end - start;
+            seconds += elapsed_seconds.count();
+        }
     }
-    // for (int i = 0; i < arr_size; i ++) {
-    //     array[i] = 0;
-    // }
-    auto end = std::chrono::high_resolution_clock::now();
-    /////////////////////////////////////////////////////////////////////////////////////////
-
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    double seconds = elapsed_seconds.count();   
     
-    std::cout << "val1: " << array1[0] << std::endl;
-    std::cout << "val2: " << array2[0] << std::endl;
-    std::cout << "val3: " << array3[0] << std::endl;
-    std::cout << "val4: " << array4[0] << std::endl;
-    double write_bandwidth = (arr_size * sizeof(int) * nb_iters * num_threads)/ (seconds * 1024 * 1024 * 1024); // MB/s
+    std::cout << "val: " << array[0] << std::endl;
+    double read_bandwidth = (nbiter*arr_size* num_threads * sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
 
-    std::cout << "Write Bandwidth: " << write_bandwidth << " GB/s\n";
-    std::cerr << write_bandwidth << std::endl;
-    free(array1);
-    free(array2);
-    free(array3);
-    free(array4);
+    std::cout << "Read Bandwidth: " << read_bandwidth << " GB/s\n";
+    std::cerr << read_bandwidth << std::endl;
 
     return 0;
 }
