@@ -9,15 +9,15 @@ TARGETS := read write read_write latency latency_core_structure
 
 all: $(TARGETS)
 
-read:
+read: read_benchmark.cpp
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) read_benchmark.cpp -o read
-write:
+write: write_benchmark.cpp
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) write_benchmark.cpp -o write
-read_write:
+read_write: read_write_benchmark.cpp
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) read_write_benchmark.cpp -o read_write
-latency:
+latency: latency_benchmark.cpp
 	$(CXX) $(CXXFLAGS_COMMON) latency_benchmark.cpp -o latency
-latency_core_structure:
+latency_core_structure: latency_benchmark_core_structure.cpp
 	$(CXX) $(CXXFLAGS_COMMON) latency_benchmark_core_structure.cpp -o latency_core_structure
 
 run_read:
@@ -40,5 +40,6 @@ bench_centaurus:
 
 clean:
 	rm -f $(TARGETS)
+clean_results:
 	rm -rf results
 	rm -rf plots
