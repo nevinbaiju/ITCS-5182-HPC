@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     std::cout << "val: " << array[0] << std::endl;
     double read_bandwidth = (nbiter*arr_size* num_threads * sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
 
-    std::cout << "Read Bandwidth: " << read_bandwidth << " GB/s\n";
+    std::cout << "Write Bandwidth: " << read_bandwidth << " GB/s\n";
     std::cerr << read_bandwidth << std::endl;
 
     free(array);
