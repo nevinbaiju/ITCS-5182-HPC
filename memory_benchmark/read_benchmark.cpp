@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     int arr_size = (std::stoi(argv[1])*1024)/(sizeof(int));
 
     int *array;
-    int allocate_status = posix_memalign((void **)&array, 32, arr_size * 32);
+    int allocate_status = posix_memalign((void **)&array, 32*8*4, arr_size * 32);
     for(int i=0; i<arr_size; i++){
         array[i] = 1;
     }
@@ -50,14 +50,13 @@ int main(int argc, char *argv[]) {
 
     #pragma omp parallel
     {
-        auto start = std::chrono::high_resolution_clock::now();
         int i;
         __m256i data1, data2, data3, data4;
         __m256i _m_sum_local_1 = _mm256_setzero_si256();
         __m256i _m_sum_local_2 = _mm256_setzero_si256();
         __m256i _m_sum_local_3 = _mm256_setzero_si256();
         __m256i _m_sum_local_4 = _mm256_setzero_si256();
-
+        auto start = std::chrono::high_resolution_clock::now();
         for(int iter=0; iter<nbiter; iter++){ 
             for (i=0; i<arr_size; i+=32){
                 data1 = _mm256_stream_load_si256((__m256i *)&array[i]);
