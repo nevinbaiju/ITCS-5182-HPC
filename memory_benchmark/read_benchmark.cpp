@@ -24,40 +24,58 @@ int main(int argc, char *argv[]) {
     }
     int sum = 0;
     int sum_array[8];
-    int nbiter = 10;
+    int nbiter = 25;
+    double seconds = 0;
 
     ////////////////////// Timing block /////////////////////////////////////////////////////
-    auto start = std::chrono::high_resolution_clock::now();
+    
     __m256i _m_sum = _mm256_setzero_si256();
-    for(int i=0; i<nbiter; i++)
+    // #pragma omp parallel
+    // {
+    //     auto start = std::chrono::high_resolution_clock::now();
+    //     int local_sum=0, i;
+    //     for(int iter=0; iter<nbiter; iter++){ 
+    //         for (i=0; i<arr_size; i++){
+    //             local_sum += array[i];
+    //         }
+    //     }
+    //     auto end = std::chrono::high_resolution_clock::now();
+    //     #pragma omp critical
+    //     {
+    //         std::chrono::duration<double> elapsed_seconds = end - start;
+    //         seconds += elapsed_seconds.count();
+    //         sum += local_sum;
+    //     }
+    // }
+
+    #pragma omp parallel
     {
-        #pragma omp parallel
-        {
-            // __m256i _m_sum_thread = _mm256_setzero_si256();
-            // __m256i data;
-            int local_sum=0;
-            for (int i = 0; i < arr_size; i ++) {
-                local_sum += array[i];
-                // data = _mm256_stream_load_si256((__m256i *)&array[i]);
-                // _m_sum_thread = _mm256_add_epi32(_m_sum_thread, data);
-            }
-            #pragma omp critical
-            {
-                // _m_sum = _mm256_add_epi32(_m_sum_thread, _m_sum);
-                sum += local_sum;
+        auto start = std::chrono::high_resolution_clock::now();
+        int i;
+        __m256i data;
+        __m256i _m_sum_local = _mm256_setzero_si256();
+        for(int iter=0; iter<nbiter; iter++){ 
+            for (i=0; i<arr_size; i+=8){
+                data = _mm256_stream_load_si256((__m256i *)&array[i]);
+                _m_sum_local = _mm256_add_epi32(_m_sum_local, data);
             }
         }
+        auto end = std::chrono::high_resolution_clock::now();
+        #pragma omp critical
+        {
+            std::chrono::duration<double> elapsed_seconds = end - start;
+            seconds += elapsed_seconds.count();
+            _m_sum = _mm256_add_epi32(_m_sum_local, _m_sum);
+        }
     }
-    auto end = std::chrono::high_resolution_clock::now();
+    _mm256_storeu_si256((__m256i *)sum_array, _m_sum);
     /////////////////////////////////////////////////////////////////////////////////////////
     // _mm256_storeu_si256((__m256i *)sum_array, _m_sum);
     // for (int j = 0; j < 8; j++) {
     //         sum += sum_array[j];
     // }
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    double seconds = elapsed_seconds.count();   
     
-    std::cout << "Sum: " << sum << std::endl;
+    std::cout << "Sum: " << sum_array[0] << std::endl;
     double read_bandwidth = (nbiter*arr_size* num_threads * sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
 
     std::cout << "Read Bandwidth: " << read_bandwidth << " GB/s\n";
