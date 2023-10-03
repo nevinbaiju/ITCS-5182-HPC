@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
         __m256i data_3 = _mm256_setzero_si256();
         __m256i data_4 = _mm256_setzero_si256();
         auto start = std::chrono::high_resolution_clock::now();
+        std::cout << "TID: " << tid << chuck_start << ":" << chuck_end << std::endl;
         for(int iter=0; iter<nbiter; iter++){ 
             for (i=chuck_start; i<chuck_end; i+=32){
                 _mm256_storeu_si256((__m256i *)&array[i], data_1);
