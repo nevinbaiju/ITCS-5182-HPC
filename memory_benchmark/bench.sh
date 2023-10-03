@@ -23,11 +23,11 @@ mkdir results
 mkdir plots
 
 # Call the function with the provided program name
-# export OMP_NUM_THREADS=1
-# iterate_and_run "read"
-# export OMP_NUM_THREADS=2
+export OMP_NUM_THREADS=1
+iterate_and_run "read"
+export OMP_NUM_THREADS=16
 iterate_and_run "write"
 # iterate_and_run "read_write"
-# iterate_and_run "latency"
+iterate_and_run "latency"
 
 python plot_results.py
