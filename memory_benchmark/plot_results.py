@@ -43,6 +43,6 @@ def plot(experiment):
     plt.clf()
 
 plot('read')
-# plot('write')
+plot('write')
 # plot('read_write')
-# plot('latency')
+plot('latency')
