@@ -41,10 +41,10 @@ int main(int argc, char *argv[]) {
         auto start = std::chrono::high_resolution_clock::now();
         for(int iter=0; iter<nbiter; iter++){ 
             for (i=0; i<chunk_size; i+=32){
-                _mm256_storeu_si256((__m256i *)&array[i], data_1);
-                _mm256_storeu_si256((__m256i *)&array[i+8], data_2);
-                _mm256_storeu_si256((__m256i *)&array[i+16], data_3);
-                _mm256_storeu_si256((__m256i *)&array[i+24], data_4);
+                _mm256_store_si256((__m256i *)&array[i], data_1);
+                _mm256_store_si256((__m256i *)&array[i+8], data_2);
+                _mm256_store_si256((__m256i *)&array[i+16], data_3);
+                _mm256_store_si256((__m256i *)&array[i+24], data_4);
             }
         }
         auto end = std::chrono::high_resolution_clock::now();
