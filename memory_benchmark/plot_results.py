@@ -44,5 +44,5 @@ def plot(experiment):
 
 # plot('read')
 plot('write')
-# plot('read_write')
+plot('read_write')
 # plot('latency')
