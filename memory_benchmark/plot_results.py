@@ -42,7 +42,7 @@ def plot(experiment):
     plt.savefig(f'plots/{experiment}_cache.png')
     plt.clf()
 
-plot('read')
+# plot('read')
 plot('write')
 # plot('read_write')
-plot('latency')
+# plot('latency')
