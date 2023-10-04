@@ -27,7 +27,7 @@ mkdir plots
 # iterate_and_run "read"
 export OMP_NUM_THREADS=1
 iterate_and_run "write"
-# iterate_and_run "read_write"
+iterate_and_run "read_write"
 # iterate_and_run "latency"
 
 python plot_results.py
