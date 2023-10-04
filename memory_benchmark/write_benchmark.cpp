@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
     int arr_size = (std::stoi(argv[1])*1024)/(sizeof(int));
 
     int *array;
-    int allocate_status = posix_memalign((void **)&array, 32*8*4, arr_size * 32 + 1);
-    int nbiter = 50;
+    int allocate_status = posix_memalign((void **)&array, 32*8*4, arr_size * 32);
+    int nbiter = 25;
     double seconds = 0;
 
     ////////////////////// Timing block /////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
     }
     
     std::cout << "val: " << array[0] << std::endl;
-    double read_bandwidth = (nbiter*arr_size* num_threads * sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
+    double read_bandwidth = (nbiter*arr_size*sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
 
     std::cout << "Write Bandwidth: " << read_bandwidth << " GB/s\n";
     std::cerr << read_bandwidth << std::endl;

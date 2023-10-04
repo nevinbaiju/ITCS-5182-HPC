@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     int allocate_status;
     allocate_status = posix_memalign((void **)&array1, 32*8*4, arr_size * 32);
     allocate_status = posix_memalign((void **)&array2, 32*8*4, arr_size * 32);
-    int nbiter = 50;
+    int nbiter = 10;
     double seconds = 0;
 
     for(int i=0; i<arr_size; i++){
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     }
     
     std::cout << "val: " << array2[0] << std::endl;
-    double read_bandwidth = (nbiter*arr_size* num_threads * sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
+    double read_bandwidth = (nbiter*arr_size * sizeof(int)) / (seconds * 1024 * 1024 * 1024); 
 
     std::cout << "Write Bandwidth: " << read_bandwidth << " GB/s\n";
     std::cerr << read_bandwidth << std::endl;
