@@ -31,9 +31,9 @@ def plot(experiment):
 
     plt.figure(figsize=(18, 12))
     plt.plot(x[:1285], y[:1285])
-    plt.axvline(32, label='L1', color='green')
-    plt.axvline(256, label='L2', color='orange')
-    plt.axvline(20480, label='L3', color='red')
+    plt.axvline(32, label='L1', color='green', linestyle='dotted', linewidth=1.5)
+    plt.axvline(256, label='L2', color='orange', linestyle='dotted', linewidth=1.5)
+    plt.axvline(20480, label='L3', color='red', linestyle='dotted', linewidth=1.5)
     plt.title(title + " Cache effects")
     plt.xlabel(x_label)
     plt.ylabel(y_label)
@@ -42,7 +42,7 @@ def plot(experiment):
     plt.savefig(f'plots/{experiment}_cache.png')
     plt.clf()
 
-# plot('read')
+plot('read')
 plot('write')
 plot('read_write')
-# plot('latency')
+plot('latency')
