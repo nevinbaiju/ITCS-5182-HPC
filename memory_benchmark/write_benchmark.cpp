@@ -46,9 +46,7 @@ int main(int argc, char *argv[]) {
         //     std::cout << "TID: " << tid << ", "<< chuck_start << ":" << chuck_end << std::endl;
         // }
         for(int iter=0; iter<nbiter; iter++){ 
-            // std::cout << iter << " " << tid << std::endl;
             for (i=chuck_start; i<chuck_end; i+=32){
-                // std::cout << iter << " " << tid << " " << i << "/" << chuck_end << std::endl;
                 _mm256_storeu_si256((__m256i *)&array[i], data_1);
                 _mm256_storeu_si256((__m256i *)&array[i+8], data_2);
                 _mm256_storeu_si256((__m256i *)&array[i+16], data_3);
