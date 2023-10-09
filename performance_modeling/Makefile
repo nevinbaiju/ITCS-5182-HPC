@@ -9,7 +9,7 @@ TARGETS := performance_modeling
 all: $(TARGETS) performance_modeling.cpp
 
 performance_modeling: performance_modeling.cpp
-	$(CXX) performance_modeling.cpp -o performance_modeling
+	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) performance_modeling.cpp -o performance_modeling
 
 run: 
 	./performance_modeling 10 5
