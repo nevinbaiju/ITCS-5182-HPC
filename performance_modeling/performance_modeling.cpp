@@ -7,12 +7,14 @@
 
 #define DEBUG 0
 
-void print_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end, int num_pixels){
-    auto elapsed_seconds = end-start;
+void print_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end, 
+                        int filter_size, int width, int height, int nb_iters){
+    long int flop = (filter_size*filter_size + filter_size)*width*height*nb_iters;                            
+    std::chrono::duration<double> elapsed_seconds = end - start;
     double seconds = elapsed_seconds.count();
-    float inferences_per_second = (num_pixels)/(seconds);
-    // Print the data
-    std::cout << "Pixels per second: " << inferences_per_second << std::endl;
+    double flops = (flop)/(seconds*1e9);
+    std::cout << "Time taken: " << seconds/nb_iters << std::endl;
+    std::cout << "GFlops: " << flops << std::endl;
 }
 
 void print_image(float **image, int width, int height){
@@ -110,38 +112,38 @@ void convolve(float **image, float **result, float **filter, int width, int heig
     }
 }
 
-void convolve_avx(float **image, float **result, float filter[][3], int n, int m){
-    int left_x, right_x, top_y, bot_y, conv_index;
-    __m256 filter_register = _mm256_setr_ps( filter[0][0], filter[0][1], filter[0][2], 
-                                            filter[1][0], filter[1][1], filter[1][2], 
-                                            filter[2][0], filter[2][1]);                                            
-    float filter_last_val = filter[2][2];
+// void convolve_avx(float **image, float **result, float filter[][3], int n, int m){
+//     int left_x, right_x, top_y, bot_y, conv_index;
+//     __m256 filter_register = _mm256_setr_ps( filter[0][0], filter[0][1], filter[0][2], 
+//                                             filter[1][0], filter[1][1], filter[1][2], 
+//                                             filter[2][0], filter[2][1]);                                            
+//     float filter_last_val = filter[2][2];
 
-    __m256 image_register, result_register;
-    float image_last_val;
-    float result_buffer[8];
+//     __m256 image_register, result_register;
+//     float image_last_val;
+//     float result_buffer[8];
 
-    for(int y=0; y<m; y++){
-        for(int x=0; x<n; x++){
+//     for(int y=0; y<m; y++){
+//         for(int x=0; x<n; x++){
 
-            #if DEBUG
-                print_image_debug(image, left_x, right_x, top_y, bot_y);
-                print_filter_debug(filter, 0, 2, 0, 2);
-            #endif
-            image_register = _mm256_setr_ps( image[y][x], image[y][x+1], image[y][x+2], 
-                                             image[y+1][x], image[y+1][x+1], image[y+1][x+2], 
-                                             image[y+2][x], image[y+2][x+1]);
+//             #if DEBUG
+//                 print_image_debug(image, left_x, right_x, top_y, bot_y);
+//                 print_filter_debug(filter, 0, 2, 0, 2);
+//             #endif
+//             image_register = _mm256_setr_ps( image[y][x], image[y][x+1], image[y][x+2], 
+//                                              image[y+1][x], image[y+1][x+1], image[y+1][x+2], 
+//                                              image[y+2][x], image[y+2][x+1]);
 
-            result_register = _mm256_mul_ps(filter_register, image_register);                       
+//             result_register = _mm256_mul_ps(filter_register, image_register);                       
 
-            result[y][x] = std::fma(filter_last_val, image[y+2][x+2], hsum_float_avx(result_register));
+//             result[y][x] = std::fma(filter_last_val, image[y+2][x+2], hsum_float_avx(result_register));
 
-            #if DEBUG
-                std::cout << y << "," << x << "->" << result[y][x] << "\n\n";
-            #endif
-        }
-    }
-}
+//             #if DEBUG
+//                 std::cout << y << "," << x << "->" << result[y][x] << "\n\n";
+//             #endif
+//         }
+//     }
+// }
 
 int main(int argc, char *argv[]) {
     
@@ -154,18 +156,24 @@ int main(int argc, char *argv[]) {
     int filter_size = std::stoi(argv[3]);
     int padding = 2*int(filter_size/2);
 
+    int nb_iters = 10;
+
     float **image, **result, **filter;
     init_image(image, width+padding, height+padding, padding/2);
     init_result(result, width, height);
     generate_identity_kernel(filter, filter_size);
     
-    print_image(filter, filter_size, filter_size);
-    print_image(image, width+padding, height+padding);
+    // print_image(filter, filter_size, filter_size);
+    // print_image(image, width+padding, height+padding);
     auto start = std::chrono::high_resolution_clock::now();
-    convolve(image, result, filter, width, height, filter_size);
-    print_image(result, width, height);
+    for(int i=0; i<nb_iters; i++)
+    {
+        convolve(image, result, filter, width, height, filter_size);
+    }
+    // print_image(result, width, height);
     auto end = std::chrono::high_resolution_clock::now();
-    print_time_elapsed(start, end, width*height);
+    std::cout << "mid pixel: " << result[int(height/2)][int(width/2)] << std::endl;  
+    print_time_elapsed(start, end, filter_size, width, height, nb_iters);
 
 
     // start = std::chrono::high_resolution_clock::now();
