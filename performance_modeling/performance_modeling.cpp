@@ -25,18 +25,18 @@ void print_image(float **image, int width, int height){
     std::cout << "\n";
 }
 
-void init_image(float **&image, int width, int height){
+void init_image(float **&image, int width, int height, int padding){
     image = new float*[height];
     for (int y = 0; y < height; y++) {
         image[y] = new float[width];
         for (int x = 0; x < width; x++) {
 
             // Account for padding.
-            if ((y==0)|(x==0)|(y==height-1)|(x==width-1)){
+            if ((y<padding)|(x<padding)|(y>=(height-padding))|(x>=(width-padding))){
                 image[y][x] = 0;
                 continue;   
             }
-            if (x < width/2){
+            if (x < (width/2)){
                 image[y][x] = 0;
             }
             else{
@@ -51,6 +51,18 @@ void init_result(float **&image, int width, int height){
     for (int y = 0; y < height; y++) {
         image[y] = new float[width];
     }
+}
+
+void generate_identity_kernel(float **&filter, int filter_size){
+    filter = new float*[filter_size];
+    for(int i=0; i<filter_size; i++){
+        filter[i] = new float[filter_size];
+        for(int j=0; j<filter_size; j++){
+            filter[i][j] = 0;
+        }
+    }
+    int mid_point = int(filter_size/2);
+    filter[mid_point][mid_point] = 1;
 }
 
 void free_image(float **image, int m){
@@ -80,46 +92,22 @@ void print_filter_debug(float filter[][3], int start_x, int n, int start_y, int 
     std::cout << "\n";
 }
 
-void convolve(float **image, float **result, float filter[][3], int n, int m){
-    int left_x, right_x, top_y, bot_y, conv_index;
-    for(int y=0; y<m; y++){
-        for(int x=0; x<n; x++){
-            left_x = x;
-            right_x = x+2;
-            top_y = y;
-            bot_y = y+2;
-
-            #if DEBUG
-                print_image_debug(image, left_x, right_x, top_y, bot_y);
-                print_filter_debug(filter, 0, 2, 0, 2);
-            #endif
-
-            result[y][x] += image[y][x] *  filter[0][0];
-            result[y][x] += image[y][x+1] *  filter[0][1];
-            result[y][x] += image[y][x+2] *  filter[0][2];
-
-            result[y][x] += image[y+1][x] *  filter[1][0];
-            result[y][x] += image[y+1][x+1] *  filter[1][1];
-            result[y][x] += image[y+1][x+2] *  filter[1][2];
-
-            result[y][x] += image[y+2][x] *  filter[2][0];
-            result[y][x] += image[y+2][x+1] *  filter[2][1];
-            result[y][x] += image[y+2][x+2] *  filter[2][2];
-
-            #if DEBUG
-                std::cout << y << "," << x << "->" << result[y][x] << "\n\n";
-            #endif
+void convolve(float **image, float **result, float **filter, int width, int height, int filter_size){
+    int filter_y, filter_x, y, x;
+    for(y=0; y<height; y++){
+        for(x=0; x<width; x++){
+            for(filter_y=0; filter_y<filter_size; filter_y++){
+                for(filter_x=0; filter_x<filter_size; filter_x++){
+                    #if DEBUG
+                        std::cout << "result y, x: " << y << ", " << x << "\n";
+                        std::cout << "image y, x: " << y+filter_y << ", " << x+filter_x << "\n";
+                        std::cout << "Filter y, x: " << filter_y << ", " << filter_x << "\n\n\n";
+                    #endif
+                    result[y][x] += image[y+filter_y][x+filter_x] * filter[filter_y][filter_x];
+                }
+            }
         }
     }
-}
-
-float hsum_float_avx(__m256 v) {
-    __m128 vlow  = _mm256_castps256_ps128(v);
-    __m128 vhigh = _mm256_extractf128_ps(v, 1);
-    vlow  = _mm_add_ps(vlow, vhigh);
-
-    __m128 high64 = _mm_unpackhi_ps(vlow, vlow);
-    return  _mm_cvtss_f32(_mm_add_ps(vlow, high64));  // reduce to scalar
 }
 
 void convolve_avx(float **image, float **result, float filter[][3], int n, int m){
@@ -157,35 +145,34 @@ void convolve_avx(float **image, float **result, float filter[][3], int n, int m
 
 int main(int argc, char *argv[]) {
     
-    if (argc < 2){
+    if (argc < 3){
         std::cout << "Usage: ./performance_modeling <width> <height>\n";
         exit(0);
     }
     int width = std::stoi(argv[1]);
     int height = std::stoi(argv[2]);
+    int filter_size = std::stoi(argv[3]);
+    int padding = 2*int(filter_size/2);
 
-    float **image, **result;
-    init_image(image, width+2, height+2);
+    float **image, **result, **filter;
+    init_image(image, width+padding, height+padding, padding/2);
     init_result(result, width, height);
-    float sobelVertical[3][3] = {
-        {-1.0, 0.0, 1.0},
-        {-2.0, 0.0, 2.0},
-        {-1.0, 0.0, 1.0}
-    };
+    generate_identity_kernel(filter, filter_size);
     
-    // print_image(image, width+2, height+2);
-    // print_image(result, width, height);
+    print_image(filter, filter_size, filter_size);
+    print_image(image, width+padding, height+padding);
     auto start = std::chrono::high_resolution_clock::now();
-    convolve(image, result, sobelVertical, width, height);
+    convolve(image, result, filter, width, height, filter_size);
+    print_image(result, width, height);
     auto end = std::chrono::high_resolution_clock::now();
     print_time_elapsed(start, end, width*height);
 
 
-    start = std::chrono::high_resolution_clock::now();
-    convolve_avx(image, result, sobelVertical, width, height);
-    end = std::chrono::high_resolution_clock::now();
-    print_time_elapsed(start, end, width*height);
-    // print_image(result, width, height);
+    // start = std::chrono::high_resolution_clock::now();
+    // convolve_avx(image, result, sobelVertical, width, height);
+    // end = std::chrono::high_resolution_clock::now();
+    // print_time_elapsed(start, end, width*height);
+    // // print_image(result, width, height);
     
     free_image(image, height+2);
     free_image(result, height);

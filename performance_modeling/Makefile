@@ -12,10 +12,10 @@ performance_modeling: performance_modeling.cpp
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) performance_modeling.cpp -o performance_modeling
 
 run: 
-	./performance_modeling 10 5
+	./performance_modeling 10 5 3
 
 debug:
-	valgrind --log-file="debug.log" --leak-check=full --show-leak-kinds=all ./performance_modeling 10 5 
+	valgrind --log-file="debug.log" --leak-check=full --show-leak-kinds=all make run
 
 # bench: read
 # 	./bench.sh
