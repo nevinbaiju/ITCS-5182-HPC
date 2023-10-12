@@ -4,16 +4,16 @@
 #include <immintrin.h>
 #include <cmath>
 #include <chrono>
-
-#define DEBUG 0
+#include <omp.h>
 
 void print_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end, 
                         int filter_size, int width, int height, int nb_iters){
-    long int flop = (filter_size*filter_size + filter_size)*width*height*nb_iters;                            
+    double mega_pixels = (width*height*nb_iters)/1e6;
+    double flop = (filter_size*filter_size + filter_size)*mega_pixels;                            
     std::chrono::duration<double> elapsed_seconds = end - start;
     double seconds = elapsed_seconds.count();
-    double flops = (flop)/(seconds*1e9);
-    std::cout << "Time taken: " << seconds/nb_iters << std::endl;
+    double flops = (flop)/(seconds*1e3);
+    std::cout << "Time taken: " << seconds  <<  " seconds" << std::endl;
     std::cout << "GFlops: " << flops << std::endl;
 }
 
@@ -94,13 +94,13 @@ void print_filter_debug(float filter[][3], int start_x, int n, int start_y, int 
     std::cout << "\n";
 }
 
-void convolve(float **image, float **result, float **filter, int width, int height, int filter_size){
+void convolve(float **image, float **result, float **filter, int start_x, int end_x, int start_y, int end_y, int filter_size){
     int filter_y, filter_x, y, x;
-    for(y=0; y<height; y++){
-        for(x=0; x<width; x++){
+    for(y=start_y; y<end_y; y++){
+        for(x=start_x; x<end_x; x++){
             for(filter_y=0; filter_y<filter_size; filter_y++){
                 for(filter_x=0; filter_x<filter_size; filter_x++){
-                    #if DEBUG
+                    #ifdef DEBUG
                         std::cout << "result y, x: " << y << ", " << x << "\n";
                         std::cout << "image y, x: " << y+filter_y << ", " << x+filter_x << "\n";
                         std::cout << "Filter y, x: " << filter_y << ", " << filter_x << "\n\n\n";
@@ -108,6 +108,18 @@ void convolve(float **image, float **result, float **filter, int width, int heig
                     result[y][x] += image[y+filter_y][x+filter_x] * filter[filter_y][filter_x];
                 }
             }
+        }
+    }
+}
+
+void convolve_blocks(float **image, float **result, float **filter, int width, int height, int filter_size, int block_size){
+    int  end_x, end_y;
+    for(int y=0; y<height; y+=block_size){
+        #pragma omp parallel for
+        for(int x=0; x<width; x+=block_size){
+            end_x = std::min(x+block_size, width);
+            end_y = std::min(y+block_size, height);
+            convolve(image, result, filter, x, end_x, y, end_y, filter_size);
         }
     }
 }
@@ -148,7 +160,7 @@ void convolve(float **image, float **result, float **filter, int width, int heig
 int main(int argc, char *argv[]) {
     
     if (argc < 3){
-        std::cout << "Usage: ./performance_modeling <width> <height>\n";
+        std::cout << "Usage: ./performance_modeling <width> <height> <kernel_size>\n";
         exit(0);
     }
     int width = std::stoi(argv[1]);
@@ -156,34 +168,33 @@ int main(int argc, char *argv[]) {
     int filter_size = std::stoi(argv[3]);
     int padding = 2*int(filter_size/2);
 
-    int nb_iters = 10;
+    int nb_iters = 50;
 
     float **image, **result, **filter;
     init_image(image, width+padding, height+padding, padding/2);
     init_result(result, width, height);
     generate_identity_kernel(filter, filter_size);
     
-    // print_image(filter, filter_size, filter_size);
-    // print_image(image, width+padding, height+padding);
+    #ifdef PRINT_IMAGE
+        print_image(filter, filter_size, filter_size);
+        print_image(image, width+padding, height+padding);
+    #endif
     auto start = std::chrono::high_resolution_clock::now();
     for(int i=0; i<nb_iters; i++)
     {
-        convolve(image, result, filter, width, height, filter_size);
+        convolve(image, result, filter, 0, width, 0, height, filter_size);
+        // convolve_blocks(image, result, filter, width, height, filter_size, 100);
     }
-    // print_image(result, width, height);
+    #ifdef PRINT_IMAGE
+        print_image(result, width, height);
+    #endif
     auto end = std::chrono::high_resolution_clock::now();
     std::cout << "mid pixel: " << result[int(height/2)][int(width/2)] << std::endl;  
     print_time_elapsed(start, end, filter_size, width, height, nb_iters);
-
-
-    // start = std::chrono::high_resolution_clock::now();
-    // convolve_avx(image, result, sobelVertical, width, height);
-    // end = std::chrono::high_resolution_clock::now();
-    // print_time_elapsed(start, end, width*height);
-    // // print_image(result, width, height);
     
-    free_image(image, height+2);
+    free_image(image, height+padding);
     free_image(result, height);
+    free_image(filter, filter_size);
 
     return 0;
 }
