@@ -112,6 +112,28 @@ void convolve(float **image, float **result, float **filter, int start_x, int en
     }
 }
 
+void convolve_avx(float **image, float **result, float **filter, int start_x, int end_x, int start_y, int end_y, int filter_size){
+    int filter_y, filter_x, y, x, filter_pos, filter_pixels=filter_size*filter_size;
+    int num_registers = 4, reg_counter;
+    __m256 filter_register[num_registers], image_register[num_registers], result_register[num_registers], result_buffer;
+    for(y=start_y; y<end_y; y++){
+        for(x=start_x; x<end_x; x+=8){
+            for(filter_pos=0; filter_pos<filter_pixels; filter_y+=num_registers){
+                filter_x = int(filter_pos%filter_size);
+                filter_y = int(filter_pos/filter_size);;
+                for(reg_counter=0; filter_pos+reg_counter<filter_pixels; reg_counter++){
+                    filter_register[reg_counter] = _mm256_set1_ps(filter[filter_y][filter_x]);
+                    image_register[reg_counter] = _mm256_load_ps(&image[y+filter_y][x+filter_x]);
+
+                    result_register[reg_counter] = _mm256_fmadd_ps(image_register[reg_counter], filter_register[reg_counter], result_register[reg_counter]);
+                    _mm256_store_ps(&result[y][x], result_register[reg_counter]);
+                }
+            
+            }
+        }
+    }
+}
+
 void convolve_blocks(float **image, float **result, float **filter, int width, int height, int filter_size, int block_size){
     int  end_x, end_y;
     for(int y=0; y<height; y+=block_size){
@@ -119,7 +141,11 @@ void convolve_blocks(float **image, float **result, float **filter, int width, i
         for(int x=0; x<width; x+=block_size){
             end_x = std::min(x+block_size, width);
             end_y = std::min(y+block_size, height);
-            convolve(image, result, filter, x, end_x, y, end_y, filter_size);
+            #ifdef AVX
+                convolve_avx(image, result, filter, x, end_x, y, end_y, filter_size);
+            #else
+                convolve(image, result, filter, x, end_x, y, end_y, filter_size);
+            #endif
         }
     }
 }
@@ -182,8 +208,8 @@ int main(int argc, char *argv[]) {
     auto start = std::chrono::high_resolution_clock::now();
     for(int i=0; i<nb_iters; i++)
     {
-        convolve(image, result, filter, 0, width, 0, height, filter_size);
-        // convolve_blocks(image, result, filter, width, height, filter_size, 100);
+        // convolve(image, result, filter, 0, width, 0, height, filter_size);
+        convolve_blocks(image, result, filter, width, height, filter_size, 8);
     }
     #ifdef PRINT_IMAGE
         print_image(result, width, height);
