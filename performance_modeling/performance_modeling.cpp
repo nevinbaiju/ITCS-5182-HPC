@@ -38,6 +38,7 @@ void print_register(__m256 __m256_reg){
 
 void init_image(float **&image, int width, int height, int padding){
     image = new float*[height];
+    int pixel_val = 1;
     for (int y = 0; y < height; y++) {
         image[y] = new float[width];
         for (int x = 0; x < width; x++) {
@@ -47,12 +48,16 @@ void init_image(float **&image, int width, int height, int padding){
                 image[y][x] = 0;
                 continue;   
             }
-            if (x < (width/2)){
-                image[y][x] = 0;
-            }
             else{
-                image[y][x] = 1;
+                    image[y][x] = pixel_val;
+                    pixel_val++;
             }
+            // if (x < (width/2)){
+            //     image[y][x] = 0;
+            // }
+            // else{
+            //     image[y][x] = 1;
+            // }
         }
     }
 }
@@ -123,22 +128,35 @@ void convolve(float **image, float **result, float **filter, int start_x, int en
 
 void convolve_avx(float **image, float **result, float **filter, int start_x, int end_x, int start_y, int end_y, int filter_size){
     int filter_y, filter_x, y, x, filter_pos, filter_pixels=filter_size*filter_size;
-    int num_registers = 4, reg_counter;
+    int num_registers = 4, reg_index;
     __m256 filter_register[num_registers], image_register[num_registers], result_register[num_registers], result_buffer;
     for(y=start_y; y<end_y; y++){
-        for(x=start_x; x<end_x; x+=8){
-            for(filter_pos=0; filter_pos<filter_pixels; filter_pos+=num_registers){
-                for(reg_counter=0; filter_pos+reg_counter<filter_pixels; reg_counter++){
-                    filter_x = int((filter_pos+reg_counter)%filter_size);
-                    filter_y = int((filter_pos+reg_counter)/filter_size);;
-                    filter_register[reg_counter] = _mm256_set1_ps(filter[filter_y][filter_x]);
-                    image_register[reg_counter] = _mm256_loadu_ps(&image[y+filter_y][x+filter_x]);
+        for(x=start_x; x<end_x-1; x+=8){
+            for(filter_y=0; filter_y<filter_size; filter_y++){
+                for(filter_x=0; filter_x<filter_size; filter_x++){
+                    reg_index = (filter_y*filter_size + filter_x)%num_registers;
 
-                    result_register[reg_counter] = _mm256_fmadd_ps(image_register[reg_counter], filter_register[reg_counter], result_register[reg_counter]);
-                    _mm256_storeu_ps(&result[y][x], result_register[reg_counter]);
-                    std::cout << "Ivide ethi" << y << ":" << x << std::endl;
+                    filter_register[reg_index] = _mm256_set1_ps(filter[filter_y][filter_x]);
+                    image_register[reg_index] = _mm256_loadu_ps(&image[y+filter_y][x+filter_x]);
+                    
+                    #ifdef PRINT_IMAGE
+                    std::cout << filter_y << ":" << filter_x<< "\n";
+                    print_register(filter_register[reg_index]);
+                    std::cout << y << ":" << x << " to " << y << ":" << x+8 << "\n";
+                    print_register(image_register[reg_index]);
+                    #endif
+
+                    result_register[reg_index] = _mm256_loadu_ps(&result[y][x]);
+                    result_register[reg_index] = _mm256_fmadd_ps(image_register[reg_index], filter_register[reg_index], result_register[reg_index]);
+                    
+                    #ifdef PRINT_IMAGE
+                    std::cout << "Result: \n";
+                    print_register(result_register[reg_index]);
+                    std::cout << std::endl;
+                    #endif
+
+                    _mm256_storeu_ps(&result[y][x], result_register[reg_index]);
                 }
-            
             }
         }
     }
@@ -146,17 +164,14 @@ void convolve_avx(float **image, float **result, float **filter, int start_x, in
 
 void convolve_blocks(float **image, float **result, float **filter, int width, int height, int filter_size, int block_size){
     int  end_x, end_y;
+
     for(int y=0; y<height; y+=block_size){
         #pragma omp parallel for
         for(int x=0; x<width; x+=block_size){
-            end_x = std::min(x+block_size, width);
             end_y = std::min(y+block_size, height);
-            #ifdef AVX
-                std::cout << "Ivide ethi" << end_x << ":" << end_y << std::endl;
-                convolve_avx(image, result, filter, x, end_x, y, end_y, filter_size);
-            #else
-                convolve(image, result, filter, x, end_x, y, end_y, filter_size);
-            #endif
+            end_x = std::min(x+block_size, width);
+            convolve_avx(image, result, filter, x, end_x, y, end_y, filter_size);
+            // convolve(image, result, filter, x, end_x, y, end_y, filter_size);
         }
     }
 }
@@ -220,13 +235,13 @@ int main(int argc, char *argv[]) {
     for(int i=0; i<nb_iters; i++)
     {
         // convolve(image, result, filter, 0, width, 0, height, filter_size);
-        convolve_blocks(image, result, filter, width, height, filter_size, 16);
+        convolve_blocks(image, result, filter, width, height, filter_size, 64);
     }
     #ifdef PRINT_IMAGE
         print_image(result, width, height);
     #endif
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "mid pixel: " << result[int(height/2)][int(width/2)] << std::endl;  
+    std::cout << "mid pixel: " << result[int(height/2)][int(width/2)]/nb_iters << std::endl;  
     print_time_elapsed(start, end, filter_size, width, height, nb_iters);
     
     free_image(image, height+padding);

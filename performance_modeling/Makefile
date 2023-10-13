@@ -17,7 +17,7 @@ run:
 
 debug:
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 -D PRINT_IMAGE=1 performance_modeling.cpp -o performance_modeling
-	./performance_modeling 16 5 3
+	./performance_modeling 8 5 3
 
 valgrind_debug:
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 -D PRINT_IMAGE=1 performance_modeling.cpp -o performance_modeling
