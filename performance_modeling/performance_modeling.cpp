@@ -27,6 +27,15 @@ void print_image(float **image, int width, int height){
     std::cout << "\n";
 }
 
+void print_register(__m256 __m256_reg){
+    float buffer[8];
+    _mm256_store_ps(&buffer[0], __m256_reg);
+    for(int i=0; i<8; i++){
+        std::cout << buffer[i] << ", ";
+    }
+    std::cout << "\n";
+}
+
 void init_image(float **&image, int width, int height, int padding){
     image = new float*[height];
     for (int y = 0; y < height; y++) {
@@ -118,15 +127,16 @@ void convolve_avx(float **image, float **result, float **filter, int start_x, in
     __m256 filter_register[num_registers], image_register[num_registers], result_register[num_registers], result_buffer;
     for(y=start_y; y<end_y; y++){
         for(x=start_x; x<end_x; x+=8){
-            for(filter_pos=0; filter_pos<filter_pixels; filter_y+=num_registers){
-                filter_x = int(filter_pos%filter_size);
-                filter_y = int(filter_pos/filter_size);;
+            for(filter_pos=0; filter_pos<filter_pixels; filter_pos+=num_registers){
                 for(reg_counter=0; filter_pos+reg_counter<filter_pixels; reg_counter++){
+                    filter_x = int((filter_pos+reg_counter)%filter_size);
+                    filter_y = int((filter_pos+reg_counter)/filter_size);;
                     filter_register[reg_counter] = _mm256_set1_ps(filter[filter_y][filter_x]);
-                    image_register[reg_counter] = _mm256_load_ps(&image[y+filter_y][x+filter_x]);
+                    image_register[reg_counter] = _mm256_loadu_ps(&image[y+filter_y][x+filter_x]);
 
                     result_register[reg_counter] = _mm256_fmadd_ps(image_register[reg_counter], filter_register[reg_counter], result_register[reg_counter]);
-                    _mm256_store_ps(&result[y][x], result_register[reg_counter]);
+                    _mm256_storeu_ps(&result[y][x], result_register[reg_counter]);
+                    std::cout << "Ivide ethi" << y << ":" << x << std::endl;
                 }
             
             }
@@ -142,6 +152,7 @@ void convolve_blocks(float **image, float **result, float **filter, int width, i
             end_x = std::min(x+block_size, width);
             end_y = std::min(y+block_size, height);
             #ifdef AVX
+                std::cout << "Ivide ethi" << end_x << ":" << end_y << std::endl;
                 convolve_avx(image, result, filter, x, end_x, y, end_y, filter_size);
             #else
                 convolve(image, result, filter, x, end_x, y, end_y, filter_size);
@@ -209,7 +220,7 @@ int main(int argc, char *argv[]) {
     for(int i=0; i<nb_iters; i++)
     {
         // convolve(image, result, filter, 0, width, 0, height, filter_size);
-        convolve_blocks(image, result, filter, width, height, filter_size, 8);
+        convolve_blocks(image, result, filter, width, height, filter_size, 16);
     }
     #ifdef PRINT_IMAGE
         print_image(result, width, height);

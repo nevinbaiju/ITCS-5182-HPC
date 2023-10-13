@@ -10,13 +10,17 @@ all: $(TARGETS) performance_modeling.cpp
 
 performance_modeling: performance_modeling.cpp
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 performance_modeling.cpp -o performance_modeling
-build_debug:
-	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 -D PRINT_IMAGE=1 performance_modeling.cpp -o performance_modeling
 
 run: 
 	./performance_modeling 10 5 3
 
+
 debug:
+	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 -D PRINT_IMAGE=1 performance_modeling.cpp -o performance_modeling
+	./performance_modeling 16 5 3
+
+valgrind_debug:
+	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 -D PRINT_IMAGE=1 performance_modeling.cpp -o performance_modeling
 	valgrind --log-file="debug.log" --leak-check=full --show-leak-kinds=all make run
 
 # bench: read
