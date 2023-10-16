@@ -9,12 +9,13 @@
 void print_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end, 
                         int filter_size, int width, int height, int nb_iters){
     double mega_pixels = (width*height*nb_iters)/1e6;
-    double flop = (filter_size*filter_size + filter_size)*mega_pixels;                            
+    double flop = ((filter_size*filter_size) + (filter_size*filter_size - 1))*mega_pixels;                            
     std::chrono::duration<double> elapsed_seconds = end - start;
     double seconds = elapsed_seconds.count();
     double flops = (flop)/(seconds*1e3);
     std::cout << "Time taken: " << seconds  <<  " seconds" << std::endl;
     std::cout << "GFlops: " << flops << std::endl;
+    std::cerr << seconds << std::endl;
 }
 
 void print_image(float **image, int width, int height){
@@ -128,10 +129,11 @@ void convolve(float **image, float **result, float **filter, int start_x, int en
 
 void convolve_avx(float **image, float **result, float **filter, int start_x, int end_x, int start_y, int end_y, int filter_size){
     int filter_y, filter_x, y, x, filter_pos, filter_pixels=filter_size*filter_size;
-    int num_registers = 4, reg_index;
+    int num_registers = 5, reg_index;
     __m256 filter_register[num_registers], image_register[num_registers], result_register[num_registers], result_buffer;
     for(y=start_y; y<end_y; y++){
         for(x=start_x; x<end_x-1; x+=8){
+            result_register[reg_index] = _mm256_loadu_ps(&result[y][x]);
             for(filter_y=0; filter_y<filter_size; filter_y++){
                 for(filter_x=0; filter_x<filter_size; filter_x++){
                     reg_index = (filter_y*filter_size + filter_x)%num_registers;
@@ -146,7 +148,6 @@ void convolve_avx(float **image, float **result, float **filter, int start_x, in
                     print_register(image_register[reg_index]);
                     #endif
 
-                    result_register[reg_index] = _mm256_loadu_ps(&result[y][x]);
                     result_register[reg_index] = _mm256_fmadd_ps(image_register[reg_index], filter_register[reg_index], result_register[reg_index]);
                     
                     #ifdef PRINT_IMAGE
@@ -155,9 +156,10 @@ void convolve_avx(float **image, float **result, float **filter, int start_x, in
                     std::cout << std::endl;
                     #endif
 
-                    _mm256_storeu_ps(&result[y][x], result_register[reg_index]);
+                    
                 }
             }
+            _mm256_storeu_ps(&result[y][x], result_register[reg_index]);
         }
     }
 }
@@ -175,39 +177,6 @@ void convolve_blocks(float **image, float **result, float **filter, int width, i
         }
     }
 }
-
-// void convolve_avx(float **image, float **result, float filter[][3], int n, int m){
-//     int left_x, right_x, top_y, bot_y, conv_index;
-//     __m256 filter_register = _mm256_setr_ps( filter[0][0], filter[0][1], filter[0][2], 
-//                                             filter[1][0], filter[1][1], filter[1][2], 
-//                                             filter[2][0], filter[2][1]);                                            
-//     float filter_last_val = filter[2][2];
-
-//     __m256 image_register, result_register;
-//     float image_last_val;
-//     float result_buffer[8];
-
-//     for(int y=0; y<m; y++){
-//         for(int x=0; x<n; x++){
-
-//             #if DEBUG
-//                 print_image_debug(image, left_x, right_x, top_y, bot_y);
-//                 print_filter_debug(filter, 0, 2, 0, 2);
-//             #endif
-//             image_register = _mm256_setr_ps( image[y][x], image[y][x+1], image[y][x+2], 
-//                                              image[y+1][x], image[y+1][x+1], image[y+1][x+2], 
-//                                              image[y+2][x], image[y+2][x+1]);
-
-//             result_register = _mm256_mul_ps(filter_register, image_register);                       
-
-//             result[y][x] = std::fma(filter_last_val, image[y+2][x+2], hsum_float_avx(result_register));
-
-//             #if DEBUG
-//                 std::cout << y << "," << x << "->" << result[y][x] << "\n\n";
-//             #endif
-//         }
-//     }
-// }
 
 int main(int argc, char *argv[]) {
     
