@@ -8,13 +8,13 @@ def plot(experiment):
     x = np.array([x for x in range(3, 100, 2)])
     y = 1024*768/(time)
     
-    peak_flops = 940.8*1e9
+    peak_flops = 1843*1e9
     flops_time = ((x**2 + x**2-1)*1024*768)/peak_flops
     flops_bound = (1024*768)/flops_time
 
     peak_bandwidth = 76.8
     memory_time = ((x**2)*(1024 + x//2 + 1)*(768 + x//2 + 1) + 1024*768)/(76.8*1e9)
-    memory_bound = (1024*768)/memory_time
+    memory_bound = (1024*768*4)/memory_time
     
     formatted_exp_name = "-".join(experiment.split('_')).title()
     title = f'Throughput for various filter sizes'
