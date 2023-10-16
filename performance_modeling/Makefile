@@ -27,7 +27,8 @@ bench: performance_modeling
 	./bench.sh
 
 bench_centaurus: performance_modeling
-	sbatch --partition=Centaurus --chdir=`pwd` --time=02:00:00 --ntasks=1 --cpus-per-task=16 --mem=4G --job-name=memory_bench bench.sh
+	sbatch --partition=Centaurus --chdir=`pwd` --time=02:00:00 --ntasks=1 --cpus-per-task=16 --mem=16G --job-name=mem_1 bench.sh
+	sbatch --partition=Centaurus --chdir=`pwd` --time=04:00:00 --ntasks=1 --cpus-per-task=16 --mem=16G --job-name=mem_1 bench_last_res.sh
 
 clean:
 	rm -f $(TARGETS)
