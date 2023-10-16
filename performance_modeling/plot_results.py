@@ -22,13 +22,13 @@ def plot(experiment):
     y_label = f'Pixels per second'
         
     plt.figure(figsize=(18, 12))        
-    plt.plot(x, y, label='measured', color='blue')
-    plt.plot(x, flops_bound, label='flops bound', color='red')
-    plt.plot(x, memory_bound, label='memory bound', color='green')
+    plt.scatter(x, y, label='measured', color='blue', marker='x')
+    # plt.plot(x, flops_bound, label='flops bound', color='red')
+    # plt.plot(x, memory_bound, label='memory bound', color='green')
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
-    plt.ylim(0, 1e9)
+    # plt.ylim(0, 1e9)
     plt.legend()
     
     plt.savefig(f'plots/{experiment}.png')
