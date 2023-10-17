@@ -2,7 +2,7 @@ CXX := g++
 CXXFLAGS_COMMON := -O3 -fopenmp
 CXXFLAGS_AVX := -march=native -mavx
 
-TARGETS := performance_modeling
+TARGETS := performance_modeling_avx performance_modeling_basic_parallel
 
 .PHONY: all clean
 
@@ -31,7 +31,6 @@ bench: performance_modeling
 	./bench.sh performance_modeling_avx
 
 bench_centaurus: performance_modeling
-	rm performance_modeling_basic_parallel performance_modeling_avx
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D BASIC_PARALLEL=1 performance_modeling.cpp -o performance_modeling_basic_parallel
 	sbatch --partition=Centaurus --chdir=`pwd` --time=02:00:00 --ntasks=1 --cpus-per-task=16 --mem=16G --job-name=mem_1_bp bench.sh performance_modeling_basic_parallel
 	sbatch --partition=Centaurus --chdir=`pwd` --time=04:00:00 --ntasks=1 --cpus-per-task=16 --mem=256G --job-name=mem_2_bp bench_last_res.sh performance_modeling_basic_parallel
