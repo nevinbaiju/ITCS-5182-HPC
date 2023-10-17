@@ -2,11 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-def plot(experiment):
+def plot():
     for file_name in os.listdir('results'):
         with open(os.path.join('results', file_name), 'r') as file:
             results = file.read()
             width, height = file_name.split('_')[1:3]
+            experiment = "_".join(file_name.split('_')[5:])[:-4]
             width = int(width)
             height = int(height)
         time = np.array(results.split('\n')[:-1]).astype('float')
@@ -42,7 +43,7 @@ def plot(experiment):
         ax2.tick_params(axis='y', labelcolor='tab:blue')
         # ax2.set_ylim(0, 3e7)
 
-        plt.title(title)
+        plt.title(f"{title} ({formatted_exp_name})")
             
         # plt.figure(figsize=(18, 12))        
         # plt.scatter(x, y, label='measured', color='blue', marker='x')
@@ -57,4 +58,4 @@ def plot(experiment):
         plt.savefig(f'plots/{experiment}_{width}_{height}.png')
         plt.clf()
 
-plot('performance_modeling')
+plot()
