@@ -172,8 +172,12 @@ void convolve_blocks(float **image, float **result, float **filter, int width, i
         for(int x=0; x<width; x+=block_size){
             end_y = std::min(y+block_size, height);
             end_x = std::min(x+block_size, width);
-            convolve_avx(image, result, filter, x, end_x, y, end_y, filter_size);
-            // convolve(image, result, filter, x, end_x, y, end_y, filter_size);
+            #ifdef AVX
+                convolve_avx(image, result, filter, x, end_x, y, end_y, filter_size);
+            #endif
+            #ifdef BASIC_PARALLEL
+                convolve(image, result, filter, x, end_x, y, end_y, filter_size);
+            #endif 
         }
     }
 }

@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/bash
 
 iterate_and_run() {
     local program=$1
@@ -13,4 +12,4 @@ iterate_and_run() {
 mkdir results
 mkdir plots
 
-iterate_and_run "performance_modeling"
+iterate_and_run "$1"

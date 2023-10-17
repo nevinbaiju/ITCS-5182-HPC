@@ -7,7 +7,6 @@ iterate_and_run() {
   dimensions=("1024 768" "2048 2048" "8192 8192" "4194304 768")
 
   # Iterate over the dimensions
-  rm results/*
   for dim in "${dimensions[@]}"; do
       # Split the dimension string into width and height
       IFS=' ' read -r -a dims <<< "$dim"
@@ -24,4 +23,4 @@ iterate_and_run() {
 mkdir results
 mkdir plots
 
-iterate_and_run "performance_modeling"
+iterate_and_run "$1"
