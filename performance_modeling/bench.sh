@@ -2,6 +2,7 @@
 
 iterate_and_run() {
   local program=$1
+  local compiling=$2
 
   # Define the dimensions as tuples (width, height)
   dimensions=("1024 768" "2048 2048" "8192 8192" "4194304 768")
@@ -14,7 +15,7 @@ iterate_and_run() {
       height=${dims[1]}
   
     for ((filter_size = 3; filter_size <= 13; filter_size += 2)); do
-      echo "Running for filter size: $filter_size Image size $width $height"
+      echo "Running for filter size: $filter_size Image size $width $height with $compiling"
       ./"$program" "$width" "$height" "$filter_size" 2>> results/results_"$width"_"$height"_"$program".txt
     done
   done
@@ -23,4 +24,4 @@ iterate_and_run() {
 mkdir results
 mkdir plots
 
-iterate_and_run "$1"
+iterate_and_run "$1" "$2"
