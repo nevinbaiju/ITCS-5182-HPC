@@ -32,13 +32,13 @@ bench: performance_modeling
 
 bench_centaurus: performance_modeling
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D BASIC_PARALLEL=1 performance_modeling.cpp -o performance_modeling_basic_parallel
-	sbatch --partition=Centaurus --chdir=`pwd` --time=02:00:00 --ntasks=1 --cpus-per-task=16 --mem=64G --job-name=mem_1_bp bench.sh performance_modeling_basic_parallel bp
-	sbatch --partition=Centaurus --chdir=`pwd` --time=04:00:00 --ntasks=1 --cpus-per-task=16 --mem=120G --job-name=mem_2_bp bench_last_res.sh performance_modeling_basic_parallel bp
+	sbatch --partition=Centaurus --chdir=`pwd` --time=08:00:00 --ntasks=1 --cpus-per-task=16 --mem=64G --job-name=mem_1_bp bench.sh performance_modeling_basic_parallel bp
+	sbatch --partition=Centaurus --chdir=`pwd` --time=08:00:00 --ntasks=1 --cpus-per-task=16 --mem=120G --job-name=mem_2_bp bench_last_res.sh performance_modeling_basic_parallel bp
 
 	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 performance_modeling.cpp -o performance_modeling_avx
 	
-	sbatch --partition=Centaurus --chdir=`pwd` --time=02:00:00 --ntasks=1 --cpus-per-task=16 --mem=64G --job-name=mem_1_avx bench.sh performance_modeling_avx avx
-	sbatch --partition=Centaurus --chdir=`pwd` --time=04:00:00 --ntasks=1 --cpus-per-task=16 --mem=120G --job-name=mem_2_avx bench_last_res.sh performance_modeling_avx avx
+	sbatch --partition=Centaurus --chdir=`pwd` --time=08:00:00 --ntasks=1 --cpus-per-task=16 --mem=64G --job-name=mem_1_avx bench.sh performance_modeling_avx avx
+	sbatch --partition=Centaurus --chdir=`pwd` --time=08:00:00 --ntasks=1 --cpus-per-task=16 --mem=120G --job-name=mem_2_avx bench_last_res.sh performance_modeling_avx avx
 
 clean:
 	rm -f $(TARGETS)
