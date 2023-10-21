@@ -1,4 +1,4 @@
-CUDAFLAGS=-O3 -std=c++11 -arch=sm_37
+CUDAFLAGS=-O3 -std=c++11
 
 cuda_polynomial: cuda_polynomial.cu
 	nvcc $(CUDAFLAGS) cuda_polynomial.cu -o cuda_polynomial
