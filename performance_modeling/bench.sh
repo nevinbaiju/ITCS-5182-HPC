@@ -14,7 +14,7 @@ iterate_and_run() {
       width=${dims[0]}
       height=${dims[1]}
   
-    for ((filter_size = 3; filter_size <= 13; filter_size += 2)); do
+    for ((filter_size = 3; filter_size <= 15; filter_size += 2)); do
       echo "Running for filter size: $filter_size Image size $width $height with $compiling"
       ./"$program" "$width" "$height" "$filter_size" 2>> results/results_"$width"_"$height"_"$program".txt
     done
