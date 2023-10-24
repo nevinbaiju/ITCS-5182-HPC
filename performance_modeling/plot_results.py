@@ -26,11 +26,11 @@ def plot():
         title = f'Throughput for various filter sizes'
 
         # Create a figure and axis
-        fig, ax1 = plt.subplots(figsize=(18, 12))
+        fig, ax1 = plt.subplots(figsize=(8, 4))
 
         # Plot the first y array on the left y-axis
-        ax1.set_xlabel('Filter Size')
-        ax1.set_ylabel('Pixels per second')
+        ax1.set_xlabel('Filter Size ')
+        ax1.set_ylabel('Pixels per second (Theoretical)')
         ax1.plot(x, flops_bound, color='tab:red')
         ax1.plot(x, memory_bound, color='tab:green')
         ax1.tick_params(axis='y')
@@ -38,12 +38,12 @@ def plot():
 
         # Create a second y-axis on the right
         ax2 = ax1.twinx()
-        ax2.set_ylabel('Pixels per second', color='tab:blue')
+        ax2.set_ylabel('Pixels per second (Measured)', color='tab:blue')
         ax2.scatter(x, y, color='tab:blue', marker='x')
         ax2.tick_params(axis='y', labelcolor='tab:blue')
         # ax2.set_ylim(0, 3e7)
 
-        plt.title(f"{title} ({formatted_exp_name})")
+        plt.title(f"{title} ({formatted_exp_name}) Img size: {width}x{height}")
             
         # plt.figure(figsize=(18, 12))        
         # plt.scatter(x, y, label='measured', color='blue', marker='x')
