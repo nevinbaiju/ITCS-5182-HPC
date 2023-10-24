@@ -8,8 +8,12 @@ TARGETS := performance_modeling_avx performance_modeling_basic_parallel
 
 all: $(TARGETS) performance_modeling.cpp
 
-performance_modeling: performance_modeling.cpp
-	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 performance_modeling.cpp -o performance_modeling
+performance_modeling_avx: performance_modeling.cpp
+	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 performance_modeling.cpp -o performance_modeling_avx
+
+
+performance_modeling_basic_parallel: performance_modeling.cpp
+	$(CXX) $(CXXFLAGS_COMMON) $(CXXFLAGS_AVX) -D AVX=1 performance_modeling.cpp -o performance_modeling_basic_parallel
 
 run: 
 	./performance_modeling 10 5 3
