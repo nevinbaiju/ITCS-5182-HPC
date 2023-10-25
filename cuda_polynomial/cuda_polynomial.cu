@@ -29,7 +29,7 @@ void validate_res(float *res, int n, int degree){
             break;
         }
     }
-    std::cerr << "Polynomials computed succesfully!\n";
+    std::cout << "Polynomials computed succesfully!\n";
 }
 
 void compute_poly(float* array, int n, float* poly, int degree, float* result){
@@ -105,13 +105,18 @@ int main(int argc, char *argv[]) {
     // validate_res(h_res2, n, degree);
 
     double compute_time = get_time_elapsed(start_compute, end_compute);
-    double flops = (n/1e9)*3*(degree + 1);
-    std::cout << "FLOPS: " << flops/(compute_time*1e3) << " Terra FLOPS" << std::endl;
-    std::cout << "GPU Memory Bandwidth: " << ((n/1e6)*4)/(compute_time*1e3) << " GB/s" << std::endl;
+    double flop = (n/1e9)*3*(degree + 1);
+    double flops =  flop/(compute_time*1e3);
+    double mem_bw = ((n/1e6)*4)/(compute_time*1e3);
+    std::cout << "FLOPS: " << flops << " Terra FLOPS" << std::endl;
+    std::cout << "GPU Memory Bandwidth: " << mem_bw << " GB/s" << std::endl;
 
     double pci_bandwidth_time = get_time_elapsed(start_memcpy, end_memcpy);
+    double pci_bandwidth = ((n/1e6)*4)/(1e3*pci_bandwidth_time);
     std::cout << "PCI-e Latency: " << pci_bandwidth_time << " seconds" << std::endl;
-    std::cout << "PCI-e Bandwidth: " << ((n/1e6)*4)/(1e3*pci_bandwidth_time) << " GB/s" << std::endl;
+    std::cout << "PCI-e Bandwidth: " << pci_bandwidth << " GB/s" << std::endl;
+
+    std::cerr << n << "," << degree << "," << flops << "," << mem_bw << "," << pci_bandwidth_time << "," << pci_bandwidth << "\n";
     
     cudaFree(d_array);
     cudaFree(d_poly);
