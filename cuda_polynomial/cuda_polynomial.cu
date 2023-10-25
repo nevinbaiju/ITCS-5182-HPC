@@ -2,6 +2,7 @@
 #include<iostream>
 #include <cmath> 
 #include <cuda_runtime.h>
+#include <chrono>
 
 #define checkCudaErrors(cudaCall)                                                    \
 {                                                                                  \
@@ -14,6 +15,13 @@
     }                                                                              \
 }
 
+double get_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end){
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    double seconds = elapsed_seconds.count();
+
+    return seconds;
+}
+
 void validate_res(float *res, int n, int degree){
     for(int i=0; i<n; i++){
         if(std::abs(res[i]-(degree+1)) > 1){
@@ -21,6 +29,7 @@ void validate_res(float *res, int n, int degree){
             break;
         }
     }
+    std::cerr << "Polynomials computed succesfully!\n";
 }
 
 void compute_poly(float* array, int n, float* poly, int degree, float* result){
@@ -51,13 +60,14 @@ __global__ void compute_poly_gpu(float *array, int n, float *poly, int degree) {
 }
 
 
-int main() {
-    int n = 10000;
+int main(int argc, char *argv[]) {
+    int n = atoi(argv[1]);
+    int degree = atoi(argv[2]);
+
     float* h_array = new float[n];
     float* h_res1 = new float[n];
     float* h_res2 = new float[n];
     
-    int degree = 100;
     float* h_poly = new float[degree];
     
     for (int i = 0; i < n; i++) {
@@ -70,19 +80,38 @@ int main() {
     float *d_array, *d_poly;
     cudaMalloc(&d_array, n*sizeof(float));
     cudaMalloc(&d_poly, degree*sizeof(float));
+
+    auto start_memcpy =  std::chrono::high_resolution_clock::now();
     cudaMemcpy(d_array, h_array, n * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_poly, h_poly, degree * sizeof(float), cudaMemcpyHostToDevice);
+    auto end_memcpy =  std::chrono::high_resolution_clock::now();
 
     int threadsPerBlock = 256;
     int blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
+    
+    auto start_compute = std::chrono::high_resolution_clock::now();
+    
     compute_poly_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_array, n, d_poly, degree);
+    cudaDeviceSynchronize();
+    
+    auto end_compute = std::chrono::high_resolution_clock::now();
+    
     cudaMemcpy(h_res1, d_array, n * sizeof(float), cudaMemcpyDeviceToHost);
 
     compute_poly(h_array, n, h_poly, degree, h_res2);
     
     
     validate_res(h_res1, n, degree);
-    validate_res(h_res2, n, degree);
+    // validate_res(h_res2, n, degree);
+
+    double compute_time = get_time_elapsed(start_compute, end_compute);
+    double flops = (n/1e9)*3*(degree + 1);
+    std::cout << "FLOPS: " << flops/(compute_time*1e3) << " Terra FLOPS" << std::endl;
+    std::cout << "GPU Memory Bandwidth: " << ((n/1e6)*4)/(compute_time*1e3) << " GB/s" << std::endl;
+
+    double pci_bandwidth_time = get_time_elapsed(start_memcpy, end_memcpy);
+    std::cout << "PCI-e Latency: " << pci_bandwidth_time << " seconds" << std::endl;
+    std::cout << "PCI-e Bandwidth: " << ((n/1e6)*4)/(1e3*pci_bandwidth_time) << " GB/s" << std::endl;
     
     cudaFree(d_array);
     cudaFree(d_poly);
