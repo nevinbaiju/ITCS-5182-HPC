@@ -83,8 +83,8 @@ int main(int argc, char *argv[]) {
 
     auto start_memcpy =  std::chrono::high_resolution_clock::now();
     cudaMemcpy(d_array, h_array, n * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_poly, h_poly, degree * sizeof(float), cudaMemcpyHostToDevice);
     auto end_memcpy =  std::chrono::high_resolution_clock::now();
+    cudaMemcpy(d_poly, h_poly, degree * sizeof(float), cudaMemcpyHostToDevice);
 
     int threadsPerBlock = 256;
     int blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
