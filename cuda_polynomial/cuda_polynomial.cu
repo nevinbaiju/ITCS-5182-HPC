@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     auto end_memcpy =  std::chrono::high_resolution_clock::now();
     gpuErrchk(cudaMemcpy(d_poly, h_poly, degree * sizeof(float), cudaMemcpyHostToDevice));
 
-    int threadsPerBlock = 256;
+    int threadsPerBlock = 512;
     int blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
     
     auto start_compute = std::chrono::high_resolution_clock::now();

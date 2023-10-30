@@ -22,4 +22,4 @@ run:
 # 	./table.sh
 
 clean:
-	-rm polynomial polynomial_gpu
+	-rm cuda_polynomial
