@@ -1,17 +1,11 @@
 CUDAFLAGS=-O3 -std=c++11
 CENTFLAGS=-arch=sm_37
 
-HOSTNAME := $(shell hostname)
-DESIRED_HOSTNAME := gal-i1.uncc.edu
+cuda_polynomial: cuda_polynomial.cu
+	nvcc $(CUDAFLAGS) cuda_polynomial.cu -o cuda_polynomial
 
-ifeq ($(HOSTNAME),$(DESIRED_HOSTNAME))
-    TARGET := cuda_polynomial_centaurus
-else
-    TARGET := cuda_polynomial
-endif
-
-$(TARGET): cuda_polynomial.cu
-    nvcc $(CUDAFLAGS) $(CENTFLAGS) cuda_polynomial.cu -o cuda_polynomial
+cuda_polynomial_centaurus: cuda_polynomial.cu
+	nvcc $(CUDAFLAGS) $(CENTFLAGS) cuda_polynomial.cu -o cuda_polynomial
 
 run:
 	./cuda_polynomial 100000 100
