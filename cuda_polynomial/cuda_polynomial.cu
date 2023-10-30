@@ -62,6 +62,7 @@ __global__ void compute_poly_gpu(float *array, int n, float *poly, int degree) {
 int main(int argc, char *argv[]) {
     int n = atoi(argv[1]);
     int degree = atoi(argv[2]);
+    int nb_iter = 25;
 
     float* h_array = new float[n];
     float* h_res1 = new float[n];
@@ -81,7 +82,9 @@ int main(int argc, char *argv[]) {
     gpuErrchk(cudaMalloc(&d_poly, degree*sizeof(float)));
 
     auto start_memcpy =  std::chrono::high_resolution_clock::now();
-    gpuErrchk(cudaMemcpy(d_array, h_array, n * sizeof(float), cudaMemcpyHostToDevice));
+    for (int i=0; i<nb_iter; i++){
+        gpuErrchk(cudaMemcpy(d_array, h_array, n * sizeof(float), cudaMemcpyHostToDevice));
+    }
     auto end_memcpy =  std::chrono::high_resolution_clock::now();
     gpuErrchk(cudaMemcpy(d_poly, h_poly, degree * sizeof(float), cudaMemcpyHostToDevice));
 
@@ -90,9 +93,11 @@ int main(int argc, char *argv[]) {
     
     auto start_compute = std::chrono::high_resolution_clock::now();
     
-    compute_poly_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_array, n, d_poly, degree);
-    gpuErrchk( cudaPeekAtLastError() );
-    cudaDeviceSynchronize();
+    for(int i=0; i<nb_iter; i++){
+        compute_poly_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_array, n, d_poly, degree);
+        gpuErrchk( cudaPeekAtLastError() );
+        cudaDeviceSynchronize();
+    }
     
     auto end_compute = std::chrono::high_resolution_clock::now();
     
@@ -105,9 +110,9 @@ int main(int argc, char *argv[]) {
     // validate_res(h_res2, n, degree);
 
     double compute_time = get_time_elapsed(start_compute, end_compute);
-    double flop = (n/1e9)*3*(degree + 1);
+    double flop = ((nb_iter*n)/1e9)*3*(degree + 1);
     double flops =  flop/(compute_time*1e3);
-    double mem_bw = ((n/1e6)*4)/(compute_time*1e3);
+    double mem_bw = (((nb_iter*n)/1e6)*4)/(compute_time*1e3);
     std::cout << "FLOPS: " << flops << " Terra FLOPS" << std::endl;
     std::cout << "GPU Memory Bandwidth: " << mem_bw << " GB/s" << std::endl;
 
