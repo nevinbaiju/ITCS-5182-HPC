@@ -90,7 +90,8 @@ int main(int argc, char *argv[]) {
     
     auto start_compute = std::chrono::high_resolution_clock::now();
     
-    gpuErrchk(compute_poly_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_array, n, d_poly, degree));
+    compute_poly_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_array, n, d_poly, degree);
+    gpuErrchk( cudaPeekAtLastError() );
     cudaDeviceSynchronize();
     
     auto end_compute = std::chrono::high_resolution_clock::now();
