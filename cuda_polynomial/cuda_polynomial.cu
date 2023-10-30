@@ -24,7 +24,7 @@ double get_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clo
 void validate_res(float *res, int n, int degree){
     for(int i=0; i<n; i++){
         if(std::abs(res[i]-(degree+1)) > 1){
-            std::cerr << "Error: The calculation is wrong!\n";
+            std::cout << "Error: The calculation is wrong!\n";
             break;
         }
     }
