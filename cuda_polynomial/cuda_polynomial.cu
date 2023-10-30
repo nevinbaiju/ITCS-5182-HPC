@@ -4,15 +4,14 @@
 #include <cuda_runtime.h>
 #include <chrono>
 
-#define checkCudaErrors(cudaCall)                                                    \
-{                                                                                  \
-    cudaError_t error = cudaCall;                                                  \
-    if (error != cudaSuccess)                                                      \
-    {                                                                              \
-        fprintf(stderr, "CUDA error in file '%s' in line %i: %s\n",                \
-                __FILE__, __LINE__, cudaGetErrorString(error));                     \
-        exit(1);                                                                   \
-    }                                                                              \
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+   if (code != cudaSuccess) 
+   {
+      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+      if (abort) exit(code);
+   }
 }
 
 double get_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end){
@@ -78,25 +77,25 @@ int main(int argc, char *argv[]) {
     }
 
     float *d_array, *d_poly;
-    cudaMalloc(&d_array, n*sizeof(float));
-    cudaMalloc(&d_poly, degree*sizeof(float));
+    gpuErrchk(cudaMalloc(&d_array, n*sizeof(float)));
+    gpuErrchk(cudaMalloc(&d_poly, degree*sizeof(float)));
 
     auto start_memcpy =  std::chrono::high_resolution_clock::now();
-    cudaMemcpy(d_array, h_array, n * sizeof(float), cudaMemcpyHostToDevice);
+    gpuErrchk(cudaMemcpy(d_array, h_array, n * sizeof(float), cudaMemcpyHostToDevice));
     auto end_memcpy =  std::chrono::high_resolution_clock::now();
-    cudaMemcpy(d_poly, h_poly, degree * sizeof(float), cudaMemcpyHostToDevice);
+    gpuErrchk(cudaMemcpy(d_poly, h_poly, degree * sizeof(float), cudaMemcpyHostToDevice));
 
     int threadsPerBlock = 256;
     int blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
     
     auto start_compute = std::chrono::high_resolution_clock::now();
     
-    compute_poly_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_array, n, d_poly, degree);
+    gpuErrchk(compute_poly_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_array, n, d_poly, degree));
     cudaDeviceSynchronize();
     
     auto end_compute = std::chrono::high_resolution_clock::now();
     
-    cudaMemcpy(h_res1, d_array, n * sizeof(float), cudaMemcpyDeviceToHost);
+    gpuErrchk(cudaMemcpy(h_res1, d_array, n * sizeof(float), cudaMemcpyDeviceToHost));
 
     compute_poly(h_array, n, h_poly, degree, h_res2);
     
@@ -118,8 +117,8 @@ int main(int argc, char *argv[]) {
 
     std::cerr << n << "," << degree << "," << flops << "," << mem_bw << "," << pci_bandwidth_time << "," << pci_bandwidth << "\n";
     
-    cudaFree(d_array);
-    cudaFree(d_poly);
+    gpuErrchk(cudaFree(d_array));
+    gpuErrchk(cudaFree(d_poly));
 
     delete[] h_array;
     delete[] h_poly;
