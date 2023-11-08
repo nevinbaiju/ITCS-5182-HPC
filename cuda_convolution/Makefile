@@ -1,7 +1,8 @@
 CUDAFLAGS=-O3 -std=c++11
 CENTFLAGS=-arch=sm_37
+DEBUG=0
 
-cuda_convolution: cuda_convolution.cu
+cuda_convolution: cuda_convolution.cu 
 	nvcc $(CUDAFLAGS) cuda_convolution.cu -o cuda_convolution
 
 cuda_convolution_centaurus: cuda_convolution.cu
