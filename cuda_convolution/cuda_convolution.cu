@@ -6,6 +6,8 @@
 #include <chrono>
 #include <cstring>
 
+#define DEBUG 0
+
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
 {
@@ -16,21 +18,16 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
    }
 }
 
-double get_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end){
+void print_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end, 
+                        int filter_size, int width, int height, int nb_iters){
+    double mega_pixels = (width*height*nb_iters)/1e6;
+    double flop = ((filter_size*filter_size) + (filter_size*filter_size - 1))*mega_pixels;                            
     std::chrono::duration<double> elapsed_seconds = end - start;
     double seconds = elapsed_seconds.count();
-
-    return seconds;
-}
-
-void validate_res(float *res, int n, int degree){
-    for(int i=0; i<n; i++){
-        if(std::abs(res[i]-(degree+1)) > 1){
-            std::cout << "Error: The calculation is wrong!\n";
-            break;
-        }
-    }
-    std::cout << "Polynomials computed succesfully!\n";
+    double flops = (flop)/(seconds*1e3);
+    std::cout << "Time taken: " << seconds  <<  " seconds" << std::endl;
+    std::cout << "GFlops: " << flops << std::endl;
+    std::cerr << seconds << std::endl;
 }
 
 __global__ void convolve(float *image, float *res_image, float *filter, int height, int width, int filter_size, int padded_width) {
@@ -48,17 +45,16 @@ __global__ void convolve(float *image, float *res_image, float *filter, int heig
 }
 
 void init_image(float *image, int width, int height, int padding){
-    int pixel_val = 1;
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-
+    long int pixel_val = 1;
+    for (long int y = 0; y < height; y++) {
+        for (long int x = 0; x < width; x++) {
             // Account for padding.
             if ((y<padding)|(x<padding)|(y>=(height-padding))|(x>=(width-padding))){
-                image[y*height + x] = 0;
+                image[y*width + x] = 0;
                 continue;   
             }
             else{
-                    image[y*height + x] = pixel_val;
+                    image[y*width + x] = pixel_val;
                     pixel_val++;
             }
         }
@@ -78,11 +74,21 @@ void generate_identity_kernel(float *&filter, int filter_size){
 void print_image(float *image, int width, int height){
     for (int y=0; y<height; y++){
         for (int x=0; x<width; x++){
-            std::cout << std::setw(5) << std::setfill(' ') << image[y*height + x] << " ";
+            std::cout << std::setw(5) << std::setfill(' ') << image[y*width + x] << " ";
         }
         std::cout << "\n";
     }
     std::cout << "\n";
+}
+
+void validate_result(float *result, long int size){
+    for(long int i=0; i<size; i++){
+        if (result[i] != i+1){
+            std::cerr << "Wrong answer at index: " << i-1 << std::endl;
+            exit(0);
+        }
+    }
+    std::cout << "All pixels checked and verified!\n";
 }
 
 
@@ -97,11 +103,14 @@ int main(int argc, char *argv[]) {
     float* h_result = new float[height*width];
     float* h_filter = new float[filter_size*filter_size];
 
+    // std::cout << "Ivide" << h_image[(height+padding)*(width+padding)-1] << "\n";
     init_image(h_image, width+padding, height+padding, padding/2);
     generate_identity_kernel(h_filter, filter_size);
 
-    // print_image(h_filter, filter_size, filter_size);
-    // print_image(h_image, width+padding, height+padding);
+    #if DEBUG
+        print_image(h_filter, filter_size, filter_size);
+        print_image(h_image, width+padding, height+padding);
+    #endif
 
     float *d_image, *d_filter, *d_result;
     gpuErrchk(cudaMalloc(&d_image, (height+padding)*(width+padding)*sizeof(float)));
@@ -114,35 +123,26 @@ int main(int argc, char *argv[]) {
     int threadsPerBlock = 512;
     int blocksPerGrid = (height*width + threadsPerBlock - 1) / threadsPerBlock;
     
-    // auto start_compute = std::chrono::high_resolution_clock::now();
+    auto start_compute = std::chrono::high_resolution_clock::now();
     
-    // for(int i=0; i<nb_iter; i++){
+    int nb_iters = 10;
+    for(int i=0; i<nb_iters; i++){
         convolve<<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, filter_size, width+padding);
         cudaDeviceSynchronize();
         gpuErrchk(cudaPeekAtLastError() );
-    // }
+    }
     
-    // auto end_compute = std::chrono::high_resolution_clock::now();
+    auto end_compute = std::chrono::high_resolution_clock::now();
     
     gpuErrchk(cudaMemcpy(h_result, d_result, height*width*sizeof(float), cudaMemcpyDeviceToHost));
-    // print_image(h_result, width, height);
+
+    #if DEBUG
+        print_image(h_result, width, height);
+    #endif
     
-    // validate_res(h_res1, n, degree);
-    // // validate_res(h_res2, n, degree);
+    validate_result(h_result, height*width);
 
-    // double compute_time = get_time_elapsed(start_compute, end_compute);
-    // double flop = ((nb_iter*n)/1e9)*3*(degree + 1);
-    // double flops =  flop/(compute_time*1e3);
-    // double mem_bw = (((nb_iter*n)/1e6)*4)/(compute_time*1e3);
-    // std::cout << "FLOPS: " << flops << " Terra FLOPS" << std::endl;
-    // std::cout << "GPU Memory Bandwidth: " << mem_bw << " GB/s" << std::endl;
-
-    // double pci_bandwidth_time = get_time_elapsed(start_memcpy, end_memcpy);
-    // double pci_bandwidth = ((n/1e6)*4)/(1e3*pci_bandwidth_time);
-    // std::cout << "PCI-e Latency: " << pci_bandwidth_time << " seconds" << std::endl;
-    // std::cout << "PCI-e Bandwidth: " << pci_bandwidth << " GB/s" << std::endl;
-
-    // std::cerr << n << "," << degree << "," << flops << "," << mem_bw << "," << pci_bandwidth_time << "," << pci_bandwidth << "\n";
+    print_time_elapsed(start_compute, end_compute, filter_size, width, height, nb_iters);
     
     gpuErrchk(cudaFree(d_image));
     gpuErrchk(cudaFree(d_filter));
