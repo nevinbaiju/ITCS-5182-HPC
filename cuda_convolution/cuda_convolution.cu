@@ -44,6 +44,43 @@ __global__ void convolve(float *image, float *res_image, float *filter, int heig
     }
 }
 
+__device__ void print_image_helper(float *image, int width, int height) {
+    for (int y=0; y<height; y++){
+        for (int x=0; x<width; x++){
+            printf("%f,", image[y*width + x]);
+        }
+        printf("\n");
+    }
+}
+
+template <int SharedSize>
+__global__ void convolve2(float *image, float *res_image, float *filter, int height, int width, int filter_size, int padded_width) {
+    __shared__ float shared_image[SharedSize]; // (filter_size*filter_size) * num_threads
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    int y = int(idx/width), x = idx%width;
+    if (idx < height*width){
+        for(int i=0; i<filter_size; i++){
+            for(int j=0; j<filter_size; j++){
+                shared_image[i*(filter_size*blockDim.x) + (idx*filter_size+j)%(filter_size*blockDim.x)] = image[(y+i)*padded_width + x+j];
+            }
+        }
+    }
+    __syncthreads();
+
+    if (idx < height * width) {
+        float res = 0;
+        
+        for (int i = 0; i < filter_size; i++) {
+            for (int j = 0; j < filter_size; j++) {
+                res += shared_image[i*(filter_size*blockDim.x) + (idx*filter_size+j)%(filter_size*blockDim.x)] * filter[i * filter_size + j];
+            }
+        }
+        
+        res_image[idx] = res;
+    }
+}
+
 void init_image(float *image, int width, int height, int padding){
     long int pixel_val = 1;
     for (long int y = 0; y < height; y++) {
@@ -85,7 +122,11 @@ void validate_result(float *result, long int size){
     for(long int i=0; i<size; i++){
         if (result[i] != i+1){
             std::cerr << "Wrong answer at index: " << i-1 << std::endl;
-            exit(0);
+            #if DEBUG
+                return;
+            #else
+                exit(0);
+            #endif
         }
     }
     std::cout << "All pixels checked and verified!\n";
@@ -99,11 +140,10 @@ int main(int argc, char *argv[]) {
 
     int padding = 2*int(filter_size/2);
 
-    float* h_image = new float[(height+padding)*(width+padding)];
-    float* h_result = new float[height*width];
+    float* h_image = static_cast<float*>(malloc((height+padding)*(width+padding) * sizeof(float)));
+    float* h_result = static_cast<float*>(malloc(height*width*sizeof(float)));
     float* h_filter = new float[filter_size*filter_size];
-
-    // std::cout << "Ivide" << h_image[(height+padding)*(width+padding)-1] << "\n";
+    
     init_image(h_image, width+padding, height+padding, padding/2);
     generate_identity_kernel(h_filter, filter_size);
 
@@ -120,12 +160,12 @@ int main(int argc, char *argv[]) {
     gpuErrchk(cudaMemcpy(d_image, h_image, (height+padding)*(width+padding)*sizeof(float), cudaMemcpyHostToDevice));
     gpuErrchk(cudaMemcpy(d_filter, h_filter, filter_size*filter_size*sizeof(float), cudaMemcpyHostToDevice));
 
-    int threadsPerBlock = 512;
+    int threadsPerBlock = 256;
     int blocksPerGrid = (height*width + threadsPerBlock - 1) / threadsPerBlock;
     
     auto start_compute = std::chrono::high_resolution_clock::now();
     
-    int nb_iters = 10;
+    int nb_iters = 1;
     for(int i=0; i<nb_iters; i++){
         convolve<<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, filter_size, width+padding);
         cudaDeviceSynchronize();

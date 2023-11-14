@@ -12,6 +12,6 @@ for dim in "${dimensions[@]}"; do
 
   for ((filter_size = 3; filter_size <= 15; filter_size += 2)); do
     echo "Running for filter size: $filter_size Image size $width $height with $compiling"
-    ./cuda_convolution "$width" "$height" "$filter_size" 2>> results/results_"$width"_"$height".txt
+    ./cuda_convolution "$width" "$height" "$filter_size" 2>> results/results_"$width"_"$height"
   done
 done
