@@ -50,7 +50,7 @@ __global__ void convolve(float *image, float *res_image, float *filter, int heig
 
 template <int filter_size, int shared_result_size>
 __global__ void convolve4(float *image, float *res_image, float *filter, int height, int width, int padded_width) {
-    __shared__ float shared_result[shared_result_size];
+    __shared__ float shared_result[2*shared_result_size];
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < height*width){
         float res = 0;
@@ -62,11 +62,11 @@ __global__ void convolve4(float *image, float *res_image, float *filter, int hei
                 res += image[i*padded_width + j]*filter[(i-y)*filter_size + (j-x)];
             }
         }
-        shared_result[threadIdx.x] = res;
+        shared_result[2*threadIdx.x] = res;
     }
     __syncthreads();
     if(idx < height*width){
-        res_image[idx] = shared_result[threadIdx.x];
+        res_image[idx] = shared_result[2*threadIdx.x];
     }
 
 }
@@ -313,31 +313,31 @@ int main(int argc, char *argv[]) {
         #else
             
             if (filter_size == 3) {
-                convolve<3><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<3, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 4) {
-                convolve<4><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<4, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 5) {
-                convolve<5><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<5, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 6) {
-                convolve<6><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<6, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 7) {
-                convolve<7><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<7, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 8) {
-                convolve<8><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<8, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 9) {
-                convolve<9><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<9, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 10) {
-                convolve<10><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<10, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 11) {
-                convolve<11><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<11, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 12) {
-                convolve<12><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<12, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 13) {
-                convolve<13><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<13, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 14) {
-                convolve<14><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<14, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else if (filter_size == 15) {
-                convolve<15><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+                convolve4<15, threadsPerBlock><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
             } else {
                 std::cerr << "Filter size template not defined" << std::endl;
                 exit(0);
