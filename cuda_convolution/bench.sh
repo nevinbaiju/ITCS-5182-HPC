@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the dimensions as tuples (width, height)
-dimensions=("1024 768" "2048 2048" "8192 8192" "4194304 768")
+dimensions=("1024 768" "2048 2048" "8192 8192" "1000000 768")
 
 # Iterate over the dimensions
 for dim in "${dimensions[@]}"; do

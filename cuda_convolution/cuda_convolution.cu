@@ -7,6 +7,7 @@
 #include <cstring>
 
 #define DEBUG 0
+#define SHARED_MEMORY 0
 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
@@ -20,8 +21,8 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 
 void print_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start, std::chrono::time_point<std::chrono::high_resolution_clock> end, 
                         int filter_size, int width, int height, int nb_iters){
-    double mega_pixels = (width*height*nb_iters)/1e6;
-    double flop = ((filter_size*filter_size) + (filter_size*filter_size - 1))*mega_pixels;                            
+    int64_t mega_pixels = (width*height)/1e5;
+    int64_t flop = ((filter_size*filter_size) + (filter_size*filter_size - 1))*mega_pixels;                            
     std::chrono::duration<double> elapsed_seconds = end - start;
     double seconds = elapsed_seconds.count();
     double flops = (flop)/(seconds*1e3);
@@ -30,18 +31,44 @@ void print_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clo
     std::cerr << seconds << std::endl;
 }
 
-__global__ void convolve(float *image, float *res_image, float *filter, int height, int width, int filter_size, int padded_width) {
+template <int filter_size>
+__global__ void convolve(float *image, float *res_image, float *filter, int height, int width, int padded_width) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < height*width){
         float res = 0;
         int y = int(idx/width), x = idx%width;
+        #pragma unroll
         for(int i=y; i<y+filter_size; i++){
+            #pragma unroll
             for(int j=x; j<x+filter_size; j++){
                 res += image[i*padded_width + j]*filter[(i-y)*filter_size + (j-x)];
             }
         }
         res_image[idx] = res;
     }
+}
+
+template <int filter_size, int shared_result_size>
+__global__ void convolve4(float *image, float *res_image, float *filter, int height, int width, int padded_width) {
+    __shared__ float shared_result[shared_result_size];
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < height*width){
+        float res = 0;
+        int y = int(idx/width), x = idx%width;
+        #pragma unroll
+        for(int i=y; i<y+filter_size; i++){
+            #pragma unroll
+            for(int j=x; j<x+filter_size; j++){
+                res += image[i*padded_width + j]*filter[(i-y)*filter_size + (j-x)];
+            }
+        }
+        shared_result[threadIdx.x] = res;
+    }
+    __syncthreads();
+    if(idx < height*width){
+        res_image[idx] = shared_result[threadIdx.x];
+    }
+
 }
 
 __device__ void print_image_helper(float *image, int width, int height) {
@@ -53,6 +80,8 @@ __device__ void print_image_helper(float *image, int width, int height) {
     }
 }
 
+
+// A dumber implementation, had to abandon it.
 template <int SharedSize>
 __global__ void convolve2(float *image, float *res_image, float *filter, int height, int width, int filter_size, int padded_width) {
     __shared__ float shared_image[SharedSize]; // (filter_size*filter_size) * num_threads
@@ -87,35 +116,42 @@ __global__ void convolve2(float *image, float *res_image, float *filter, int hei
     }
 }
 
-template <int SharedSize>
-__global__ void convolve3(float *image, float *res_image, float *filter, int height, int width, int filter_size, int padded_width) {
-    __shared__ float shared_image[SharedSize]; // (filter_size*filter_size) * num_threads
+template <int SharedSize, int SharedResultSize, int filter_size>
+__global__ void convolve3(float *image, float *res_image, float *filter, int height, int width, int padded_width) {
+    __shared__ float shared_image[SharedSize];
+    __shared__ float shared_result[SharedResultSize];
     int shared_width = filter_size + (blockDim.x-2) + 2;
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int y = int(idx/width), x = idx%width, start_y = int((blockIdx.x*blockDim.x)/width), shared_x_offset=0;
+    int y = int(idx/width), x = idx%width, start_y = int((blockIdx.x*blockDim.x)/width);
     int i, j;
     if (idx < height*width){
         if (threadIdx.x == 0){
+            #pragma unroll
             for(i=0; i<filter_size; i++){
+                #pragma unroll
                 for(j=0; j<filter_size; j++){
                     shared_image[i*shared_width + j] = image[(y+i)*padded_width + x+j];
                 }
             }
         }
         else if ((y == start_y)){
+            #pragma unroll
             for(i=0; i<filter_size; i++){
                 shared_image[i*shared_width + 2+threadIdx.x] = image[(y+i)*padded_width + x+2];
             }
         }
         else if ((y != start_y) & (x == 0)){
-            for(int i=0; i<filter_size; i++){
-                for(int j=1; j<filter_size; j++){
+            #pragma unroll
+            for(i=0; i<filter_size; i++){
+                #pragma unroll
+                for(j=1; j<filter_size; j++){
                     shared_image[i*shared_width + 2+threadIdx.x+j-1] = image[(y+i)*padded_width + x+j];
                 }
             }
         }
         else{
+            #pragma unroll
             for(i=0; i<filter_size; i++){
                 shared_image[i*shared_width + 3+threadIdx.x] = image[(y+i)*padded_width + x+2];
             }
@@ -132,20 +168,28 @@ __global__ void convolve3(float *image, float *res_image, float *filter, int hei
     if (idx < height*width){
         float res=0;
         if ((y == start_y)){
-            for (int i = 0; i < filter_size; i++) {
-                for (int j = 0; j < filter_size; j++) {
+            #pragma unroll
+            for (i = 0; i < filter_size; i++) {
+                #pragma unroll
+                for (j = 0; j < filter_size; j++) {
                     res += shared_image[i*shared_width + threadIdx.x + j] * filter[i * filter_size + j];
                 }
             }
         }
         else{
-            for (int i = 0; i < filter_size; i++) {
-                for (int j = 0; j < filter_size; j++) {
+            #pragma unroll
+            for (i = 0; i < filter_size; i++) {
+                #pragma unroll
+                for (j = 0; j < filter_size; j++) {
                     res += shared_image[i*shared_width + threadIdx.x+1+j] * filter[i * filter_size + j];
                 }
             }
         }
-        res_image[idx] = res;
+        shared_result[threadIdx.x] = res;
+    }
+    __syncthreads();
+    if (idx < height*width){
+        res_image[idx] = shared_result[threadIdx.x];
     }
 }
 
@@ -228,15 +272,77 @@ int main(int argc, char *argv[]) {
     gpuErrchk(cudaMemcpy(d_image, h_image, (height+padding)*(width+padding)*sizeof(float), cudaMemcpyHostToDevice));
     gpuErrchk(cudaMemcpy(d_filter, h_filter, filter_size*filter_size*sizeof(float), cudaMemcpyHostToDevice));
 
-    int threadsPerBlock = 512;
+    const int threadsPerBlock = 512;
     int blocksPerGrid = (height*width + threadsPerBlock - 1) / threadsPerBlock;
     
     auto start_compute = std::chrono::high_resolution_clock::now();
     
     int nb_iters = 10;
     for(int i=0; i<nb_iters; i++){
-        // shared size: (filter_size + (filter_size-1) + (threads_per_block-2)) * filter_size
-        convolve3<((10) + (10-1) + (10-2))*10><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, filter_size, width+padding);
+        #if SHARED_MEMORY
+            if (filter_size == 3) {
+                convolve3<1545, 512, 3><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 4) {
+                convolve3<2068, 512, 4><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 5) {
+                convolve3<2595, 512, 5><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 6) {
+                convolve3<3126, 512, 6><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 7) {
+                convolve3<3661, 512, 7><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 8) {
+                convolve3<4200, 512, 8><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 9) {
+                convolve3<4743, 512, 9><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 10) {
+                convolve3<5290, 512, 10><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 11) {
+                convolve3<5841, 512, 11><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 12) {
+                convolve3<6396, 512, 12><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 13) {
+                convolve3<6955, 512, 13><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 14) {
+                convolve3<7518, 512, 14><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else if (filter_size == 15) {
+                convolve3<8085, 512, 15><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, width+padding);
+            } else {
+                std::cerr << "Filter size template not defined" << std::endl;
+                exit(0);
+            }
+        #else
+            
+            if (filter_size == 3) {
+                convolve<3><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 4) {
+                convolve<4><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 5) {
+                convolve<5><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 6) {
+                convolve<6><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 7) {
+                convolve<7><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 8) {
+                convolve<8><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 9) {
+                convolve<9><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 10) {
+                convolve<10><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 11) {
+                convolve<11><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 12) {
+                convolve<12><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 13) {
+                convolve<13><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 14) {
+                convolve<14><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else if (filter_size == 15) {
+                convolve<15><<<blocksPerGrid, threadsPerBlock>>>(d_image, d_result, d_filter, height, width, padding);
+            } else {
+                std::cerr << "Filter size template not defined" << std::endl;
+                exit(0);
+            }
+        #endif
         cudaDeviceSynchronize();
         gpuErrchk(cudaPeekAtLastError() );
     }
