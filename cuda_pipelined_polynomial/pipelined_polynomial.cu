@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cuda_runtime.h>
 #include <chrono>
+#include <algorithm>
 
 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
@@ -35,12 +36,12 @@ void get_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock
     int64_t gflop = (((n))*3*(degree + 1))/1e9;
     double flops =  gflop/(seconds);
     std::cout << "FLOPS: " << flops << " Giga FLOPS" << std::endl;
+    std::cerr << seconds << std::endl;
 }
 
 int main(int argc, char *argv[]) {
     int64_t n = strtoll(argv[1], NULL, 10);
     int degree = atoi(argv[2]);
-    std::cout << "n: " << n << std::endl;
 
     float *h_arr = new float[n];
     float *h_result = new float[n];
@@ -53,7 +54,13 @@ int main(int argc, char *argv[]) {
         h_coeffs[i] = 1;
     }
 
-    int chunk_size = 100000;
+    int chunk_size;
+    if (n <= 2000000){
+        chunk_size = n/20;
+    }
+    else{
+        chunk_size = 100000;
+    }
 
     const int num_streams = 20;
     float **d_arr_chunk, *d_coeffs, **d_result_chunk;
@@ -77,7 +84,7 @@ int main(int argc, char *argv[]) {
     const int threadsPerBlock = 512;
     int blocksPerGrid = (chunk_size + threadsPerBlock - 1) / threadsPerBlock;
     int64_t offset;
-    
+
     auto start_compute = std::chrono::high_resolution_clock::now();
     for (int64_t i = 0; i < numChunks; i+=num_streams) {
         
