@@ -55,14 +55,17 @@ int main(int argc, char *argv[]) {
     }
 
     int chunk_size;
-    if (n <= 2000000){
+    if (n <= 500000){
         chunk_size = n/20;
+    }
+    else if (n <= 2000000){
+        chunk_size = n/100;
     }
     else{
         chunk_size = 100000;
     }
 
-    const int num_streams = 20;
+    const int num_streams = 10;
     float **d_arr_chunk, *d_coeffs, **d_result_chunk;
     d_arr_chunk = new float*[num_streams];
     d_result_chunk = new float*[num_streams];
