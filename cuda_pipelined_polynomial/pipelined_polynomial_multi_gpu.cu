@@ -144,6 +144,8 @@ int main(int argc, char *argv[]) {
                 gpuErrchk(cudaFree(d_arr_chunk[stream_id]));
                 gpuErrchk(cudaFree(d_result_chunk[stream_id]));
             }
+            gpuErrchk(cudaFree(d_coeffs_0));
+            gpuErrchk(cudaFree(d_coeffs_1));
 
             delete[] h_arr;
             delete[] h_result;
@@ -154,7 +156,8 @@ int main(int argc, char *argv[]) {
 
     get_time_elapsed(start_compute, end_compute, n, degree);
     
-    gpuErrchk(cudaFree(d_coeffs));
+    gpuErrchk(cudaFree(d_coeffs_0));
+    gpuErrchk(cudaFree(d_coeffs_1));
 
     delete[] h_arr;
     delete[] h_result;
