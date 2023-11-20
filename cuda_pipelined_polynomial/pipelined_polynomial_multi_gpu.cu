@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
         cudaSetDevice(1);
         gpuErrchk(cudaStreamDestroy(stream[stream_id+1]));
     }
-    for (int stream_id=0; stream_id<num_streams; stream_id++){
+    for (int stream_id=0; stream_id<num_streams; stream_id+=2){
         gpuErrchk(cudaFree(d_arr_chunk[stream_id]));
         gpuErrchk(cudaFree(d_result_chunk[stream_id]));
     }
