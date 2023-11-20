@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
         }
         
         #pragma unroll
-        for (int stream_id=0; stream_id<num_streams/2; stream_id++){
+        for (int stream_id=0; stream_id<num_streams; stream_id+=2){
             cudaSetDevice(0);
             gpuErrchk(cudaStreamSynchronize(stream[stream_id]));
             cudaSetDevice(1);            
