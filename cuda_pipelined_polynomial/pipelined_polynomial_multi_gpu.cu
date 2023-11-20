@@ -134,20 +134,20 @@ int main(int argc, char *argv[]) {
         if (h_result[i] != degree+1){
             std::cerr << "Result: " << h_result[i] << " At index: " << i <<  " is wrong" << std::endl;
             // Free allocated memory
-            // for (int stream_id=0; stream_id<num_streams; stream_id+=2){
-            //     cudaSetDevice(0);
-            //     gpuErrchk(cudaStreamDestroy(stream[stream_id]));
-            //     gpuErrchk(cudaFree(d_arr_chunk[stream_id]));
-            //     gpuErrchk(cudaFree(d_result_chunk[stream_id]));
-            //     cudaSetDevice(1);
-            //     gpuErrchk(cudaStreamDestroy(stream[stream_id+1]));
-            //     gpuErrchk(cudaFree(d_arr_chunk[stream_id+1]));
-            //     gpuErrchk(cudaFree(d_result_chunk[stream_id+1]));
-            // }
-            // for (int stream_id=0; stream_id<num_streams; stream_id++){
-            // }
-            // gpuErrchk(cudaFree(d_coeffs_0));
-            // gpuErrchk(cudaFree(d_coeffs_1));
+            for (int stream_id=0; stream_id<num_streams; stream_id+=2){
+                cudaSetDevice(0);
+                gpuErrchk(cudaStreamDestroy(stream[stream_id]));
+                gpuErrchk(cudaFree(d_arr_chunk[stream_id]));
+                gpuErrchk(cudaFree(d_result_chunk[stream_id]));
+                cudaSetDevice(1);
+                gpuErrchk(cudaStreamDestroy(stream[stream_id+1]));
+                gpuErrchk(cudaFree(d_arr_chunk[stream_id+1]));
+                gpuErrchk(cudaFree(d_result_chunk[stream_id+1]));
+            }
+            for (int stream_id=0; stream_id<num_streams; stream_id++){
+            }
+            gpuErrchk(cudaFree(d_coeffs_0));
+            gpuErrchk(cudaFree(d_coeffs_1));
 
             delete[] h_arr;
             delete[] h_result;
