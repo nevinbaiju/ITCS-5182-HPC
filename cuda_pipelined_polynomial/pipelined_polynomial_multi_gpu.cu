@@ -121,10 +121,12 @@ int main(int argc, char *argv[]) {
         #pragma unroll
         for (int stream_id=0; stream_id<num_streams; stream_id+=2){
             cudaSetDevice(0);
+            offset = (i+stream_id) * chunk_size;
             gpuErrchk(cudaMemcpyAsync(&h_result[offset], d_result_chunk[stream_id], chunk_size * sizeof(float), cudaMemcpyDeviceToHost, stream[stream_id]));
             gpuErrchk(cudaStreamSynchronize(stream[stream_id]));
             
-            cudaSetDevice(1);            
+            cudaSetDevice(1);     
+            offset = (i+stream_id+1) * chunk_size;       
             gpuErrchk(cudaMemcpyAsync(&h_result[offset], d_result_chunk[stream_id+1], chunk_size * sizeof(float), cudaMemcpyDeviceToHost, stream[stream_id+1]));
             gpuErrchk(cudaStreamSynchronize(stream[stream_id+1]));
         }
