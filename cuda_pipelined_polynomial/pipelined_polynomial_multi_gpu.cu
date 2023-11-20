@@ -126,9 +126,16 @@ int main(int argc, char *argv[]) {
         if (h_result[i] != degree+1){
             std::cerr << "Result: " << h_result[i] << " At index: " << i <<  " is wrong" << std::endl;
             // Free allocated memory
-            gpuErrchk(cudaFree(d_arr_chunk));
-            gpuErrchk(cudaFree(d_result_chunk));
-            gpuErrchk(cudaFree(d_coeffs));
+            for (int stream_id=0; stream_id<num_streams; stream_id++){
+                cudaSetDevice(0);
+                gpuErrchk(cudaStreamDestroy(stream[stream_id]));
+                cudaSetDevice(1);
+                gpuErrchk(cudaStreamDestroy(stream[stream_id+1]));
+            }
+            for (int stream_id=0; stream_id<num_streams; stream_id++){
+                gpuErrchk(cudaFree(d_arr_chunk[stream_id]));
+                gpuErrchk(cudaFree(d_result_chunk[stream_id]));
+            }
 
             delete[] h_arr;
             delete[] h_result;
