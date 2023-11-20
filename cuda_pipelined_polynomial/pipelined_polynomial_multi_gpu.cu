@@ -104,31 +104,31 @@ int main(int argc, char *argv[]) {
     for (int64_t i = 0; i < numChunks; i+=num_streams) {
 
         #pragma unroll
-        for (int stream_id=0; stream_id<num_streams; stream_id+=2){
+        for (int stream_id=0; stream_id<num_streams; stream_id++){
             cudaSetDevice(0);
             offset = (i+stream_id) * chunk_size;
             gpuErrchk(cudaMemcpyAsync(d_arr_chunk[stream_id], &h_arr[offset], chunk_size * sizeof(float), cudaMemcpyHostToDevice, stream[stream_id]));
             compute_poly<<<blocksPerGrid, threadsPerBlock>>>(d_arr_chunk[stream_id], d_coeffs_0, d_result_chunk[stream_id], degree, chunk_size, n);
             gpuErrchk(cudaPeekAtLastError() );
 
-            cudaSetDevice(1);
-            offset = (i+stream_id+1) * chunk_size;
-            gpuErrchk(cudaMemcpyAsync(d_arr_chunk[stream_id+1], &h_arr[offset], chunk_size * sizeof(float), cudaMemcpyHostToDevice, stream[stream_id+1]));
-            compute_poly<<<blocksPerGrid, threadsPerBlock>>>(d_arr_chunk[stream_id+1], d_coeffs_1, d_result_chunk[stream_id+1], degree, chunk_size, n);
-            gpuErrchk(cudaPeekAtLastError() );
+            // cudaSetDevice(1);
+            // offset = (i+stream_id+1) * chunk_size;
+            // gpuErrchk(cudaMemcpyAsync(d_arr_chunk[stream_id+1], &h_arr[offset], chunk_size * sizeof(float), cudaMemcpyHostToDevice, stream[stream_id+1]));
+            // compute_poly<<<blocksPerGrid, threadsPerBlock>>>(d_arr_chunk[stream_id+1], d_coeffs_1, d_result_chunk[stream_id+1], degree, chunk_size, n);
+            // gpuErrchk(cudaPeekAtLastError() );
         }
         
         #pragma unroll
-        for (int stream_id=0; stream_id<num_streams; stream_id+=2){
+        for (int stream_id=0; stream_id<num_streams; stream_id++){
             cudaSetDevice(0);
             offset = (i+stream_id) * chunk_size;
             gpuErrchk(cudaMemcpyAsync(&h_result[offset], d_result_chunk[stream_id], chunk_size * sizeof(float), cudaMemcpyDeviceToHost, stream[stream_id]));
             gpuErrchk(cudaStreamSynchronize(stream[stream_id]));
             
-            cudaSetDevice(1);     
-            offset = (i+stream_id+1) * chunk_size;       
-            gpuErrchk(cudaMemcpyAsync(&h_result[offset], d_result_chunk[stream_id+1], chunk_size * sizeof(float), cudaMemcpyDeviceToHost, stream[stream_id+1]));
-            gpuErrchk(cudaStreamSynchronize(stream[stream_id+1]));
+            // cudaSetDevice(1);     
+            // offset = (i+stream_id+1) * chunk_size;       
+            // gpuErrchk(cudaMemcpyAsync(&h_result[offset], d_result_chunk[stream_id+1], chunk_size * sizeof(float), cudaMemcpyDeviceToHost, stream[stream_id+1]));
+            // gpuErrchk(cudaStreamSynchronize(stream[stream_id+1]));
         }
     }
     auto end_compute = std::chrono::high_resolution_clock::now();
