@@ -12,10 +12,10 @@ while [ $n -le $upper_limit ]; do
         increment=$next_increment
         next_increment=$((increment * 10))
     fi
-    ./pipelined_polynomial $n 1 2>> results/flops2.txt
+    ./pipelined_polynomial_m $n 1 2>> results/flopsm2.txt
     for ((deg = 10; deg <= 100; deg += 10)); do
         echo "Running for size: $n degree: $deg"
-        ./pipelined_polynomial $n $deg 2>> results/flops2.txt
+        ./pipelined_polynomial_m $n $deg 2>> results/flopsm2.txt
     done
     n=$((n + increment))
 done
