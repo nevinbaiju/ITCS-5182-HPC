@@ -66,16 +66,24 @@ int main(int argc, char *argv[]) {
     }
 
     const int num_streams = 20;
-    float **d_arr_chunk, *d_coeffs, **d_result_chunk;
+    float **d_arr_chunk, *d_coeffs_0, *d_coeffs_1, **d_result_chunk;
     d_arr_chunk = new float*[num_streams];
     d_result_chunk = new float*[num_streams];
 
-    for(int i=0; i<num_streams; i++){
+    for(int i=0; i<num_streams; i+=2){
+        cudaSetDevice(0);
         gpuErrchk(cudaMalloc(&d_arr_chunk[i], chunk_size*sizeof(float)));
         gpuErrchk(cudaMalloc(&d_result_chunk[i], chunk_size*sizeof(float)));
+        cudaSetDevice(1);
+        gpuErrchk(cudaMalloc(&d_arr_chunk[i+1], chunk_size*sizeof(float)));
+        gpuErrchk(cudaMalloc(&d_result_chunk[i+1], chunk_size*sizeof(float)));
     }
-    gpuErrchk(cudaMalloc(&d_coeffs, (degree+1)*sizeof(float)));
-    gpuErrchk(cudaMemcpy(d_coeffs, h_coeffs,  (degree+1)*sizeof(float), cudaMemcpyHostToDevice)); 
+    cudaSetDevice(0);
+    gpuErrchk(cudaMalloc(&d_coeffs_0, (degree+1)*sizeof(float)));
+    gpuErrchk(cudaMemcpy(d_coeffs_0, h_coeffs,  (degree+1)*sizeof(float), cudaMemcpyHostToDevice)); 
+    cudaSetDevice(1);
+    gpuErrchk(cudaMalloc(&d_coeffs_1, (degree+1)*sizeof(float)));
+    gpuErrchk(cudaMemcpy(d_coeffs_1, h_coeffs,  (degree+1)*sizeof(float), cudaMemcpyHostToDevice)); 
 
     cudaStream_t *stream = new cudaStream_t[num_streams];
 
@@ -100,14 +108,14 @@ int main(int argc, char *argv[]) {
             cudaSetDevice(0);
             offset = (i+stream_id) * chunk_size;
             gpuErrchk(cudaMemcpyAsync(d_arr_chunk[stream_id], &h_arr[offset], chunk_size * sizeof(float), cudaMemcpyHostToDevice, stream[stream_id]));
-            compute_poly<<<blocksPerGrid, threadsPerBlock>>>(d_arr_chunk[stream_id], d_coeffs, d_result_chunk[stream_id], degree, chunk_size, n);
+            compute_poly<<<blocksPerGrid, threadsPerBlock>>>(d_arr_chunk[stream_id], d_coeffs_0, d_result_chunk[stream_id], degree, chunk_size, n);
             gpuErrchk(cudaPeekAtLastError() );
             gpuErrchk(cudaMemcpyAsync(&h_result[offset], d_result_chunk[stream_id], chunk_size * sizeof(float), cudaMemcpyDeviceToHost, stream[stream_id]));
 
             cudaSetDevice(1);
             offset = (i+stream_id+1) * chunk_size;
             gpuErrchk(cudaMemcpyAsync(d_arr_chunk[stream_id+1], &h_arr[offset], chunk_size * sizeof(float), cudaMemcpyHostToDevice, stream[stream_id+1]));
-            compute_poly<<<blocksPerGrid, threadsPerBlock>>>(d_arr_chunk[stream_id+1], d_coeffs, d_result_chunk[stream_id+1], degree, chunk_size, n);
+            compute_poly<<<blocksPerGrid, threadsPerBlock>>>(d_arr_chunk[stream_id+1], d_coeffs_1, d_result_chunk[stream_id+1], degree, chunk_size, n);
             gpuErrchk(cudaPeekAtLastError() );
             gpuErrchk(cudaMemcpyAsync(&h_result[offset], d_result_chunk[stream_id+1], chunk_size * sizeof(float), cudaMemcpyDeviceToHost, stream[stream_id+1]));
         }
