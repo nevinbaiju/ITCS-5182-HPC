@@ -70,20 +70,20 @@ int main(int argc, char *argv[]) {
     d_arr_chunk = new float*[num_streams];
     d_result_chunk = new float*[num_streams];
 
-    for(int i=0; i<num_streams; i+=2){
+    for(int i=0; i<num_streams; i++){
         cudaSetDevice(0);
         gpuErrchk(cudaMalloc(&d_arr_chunk[i], chunk_size*sizeof(float)));
         gpuErrchk(cudaMalloc(&d_result_chunk[i], chunk_size*sizeof(float)));
-        cudaSetDevice(1);
-        gpuErrchk(cudaMalloc(&d_arr_chunk[i+1], chunk_size*sizeof(float)));
-        gpuErrchk(cudaMalloc(&d_result_chunk[i+1], chunk_size*sizeof(float)));
+        // cudaSetDevice(1);
+        // gpuErrchk(cudaMalloc(&d_arr_chunk[i+1], chunk_size*sizeof(float)));
+        // gpuErrchk(cudaMalloc(&d_result_chunk[i+1], chunk_size*sizeof(float)));
     }
     cudaSetDevice(0);
     gpuErrchk(cudaMalloc(&d_coeffs_0, (degree+1)*sizeof(float)));
     gpuErrchk(cudaMemcpy(d_coeffs_0, h_coeffs,  (degree+1)*sizeof(float), cudaMemcpyHostToDevice)); 
-    cudaSetDevice(1);
-    gpuErrchk(cudaMalloc(&d_coeffs_1, (degree+1)*sizeof(float)));
-    gpuErrchk(cudaMemcpy(d_coeffs_1, h_coeffs,  (degree+1)*sizeof(float), cudaMemcpyHostToDevice)); 
+    // cudaSetDevice(1);
+    // gpuErrchk(cudaMalloc(&d_coeffs_1, (degree+1)*sizeof(float)));
+    // gpuErrchk(cudaMemcpy(d_coeffs_1, h_coeffs,  (degree+1)*sizeof(float), cudaMemcpyHostToDevice)); 
 
     cudaStream_t *stream = new cudaStream_t[num_streams];
 
