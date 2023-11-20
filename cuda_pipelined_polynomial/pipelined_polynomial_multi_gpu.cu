@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
 
     for(int64_t i=0; i<n; i++){
         if (h_result[i] != degree+1){
-            std::cout << "Result: " << h_result[i] << " At index: " << i <<  " is wrong" << std::endl;
+            std::cerr << "Result: " << h_result[i] << " At index: " << i <<  " is wrong" << std::endl;
             // Free allocated memory
             gpuErrchk(cudaFree(d_arr_chunk));
             gpuErrchk(cudaFree(d_result_chunk));

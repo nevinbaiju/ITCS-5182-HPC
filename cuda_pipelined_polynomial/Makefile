@@ -9,7 +9,7 @@ pipelined_polynomial_centaurus: pipelined_polynomial.cu
 	nvcc $(CUDAFLAGS) $(CENTFLAGS) pipelined_polynomial.cu -o pipelined_polynomial
 
 pipelined_polynomial_multi: pipelined_polynomial_multi_gpu.cu
-	nvcc $(CUDAFLAGS) $(CENTFLAGS) pipelined_polynomial_multi_gpu.cu -o pipelined_polynomial
+	nvcc $(CUDAFLAGS) $(CENTFLAGS) pipelined_polynomial_multi_gpu.cu -o pipelined_polynomial_m
 
 run:
 	./pipelined_polynomial
