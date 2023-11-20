@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
     delete[] h_result;
     delete[] h_coeffs;
 
-    for (int stream_id=0; stream_id<num_streams; stream_id++){
+    for (int stream_id=0; stream_id<num_streams; stream_id+=2){
         cudaSetDevice(0);
         gpuErrchk(cudaStreamDestroy(stream[stream_id]));
         cudaSetDevice(1);
