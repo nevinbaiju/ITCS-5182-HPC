@@ -36,7 +36,7 @@ void get_time_elapsed(std::chrono::time_point<std::chrono::high_resolution_clock
     int64_t gflop = (((n))*3*(degree + 1))/1e9;
     double flops =  gflop/(seconds);
     std::cout << "FLOPS: " << flops << " Giga FLOPS" << std::endl;
-    std::cerr << seconds << std::endl;
+    std::cerr << seconds << "," << n << "," << degree << std::endl;
 }
 
 int main(int argc, char *argv[]) {
