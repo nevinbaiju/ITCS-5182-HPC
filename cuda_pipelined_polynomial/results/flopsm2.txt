@@ -108,3 +108,124 @@ GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_g
 GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
 GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
 GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
+2.34803
+2.56851
+2.85114
+3.15061
+3.17403
+3.272
+3.41507
+3.48392
+3.55566
+3.65931
+3.74453
+4.68056
+5.11316
+5.69535
+6.28136
+6.35156
+6.29877
+6.82214
+6.98062
+7.08594
+7.32499
+7.52008
+7.03641
+7.71653
+8.54465
+9.42708
+9.51276
+9.80669
+10.2533
+10.4383
+10.6498
+10.9635
+11.2333
+9.37235
+10.2696
+11.3467
+12.5574
+12.6684
+13.1123
+13.6443
+13.9705
+14.1871
+14.723
+14.9544
+11.0385
+12.8099
+14.2052
+15.6418
+15.8469
+16.3102
+17.0787
+17.4377
+17.733
+18.3791
+18.7623
+14.0592
+15.3632
+17.0337
+18.7588
+19.0153
+19.6439
+20.4512
+20.8993
+21.2293
+21.902
+22.4624
+16.4622
+17.9545
+19.8639
+21.9063
+22.2013
+22.8615
+23.8883
+24.3462
+24.8311
+25.5502
+26.1604
+18.6685
+20.5359
+22.6113
+25.1005
+25.3944
+26.1685
+27.3287
+27.8832
+28.3661
+29.4018
+29.8153
+23.3647
+25.3686
+27.8708
+30.4593
+30.9157
+31.67
+33.0373
+33.6595
+34.3188
+35.0522
+35.894
+28.4731
+30.5919
+33.3975
+36.4085
+36.6975
+37.7068
+39.197
+39.8832
+40.3869
+41.6035
+42.4011
