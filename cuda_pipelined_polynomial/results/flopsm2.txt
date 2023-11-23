@@ -1,231 +1,110 @@
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-GPUassert: an illegal memory access was encountered pipelined_polynomial_multi_gpu.cu 112
-2.34803
-2.56851
-2.85114
-3.15061
-3.17403
-3.272
-3.41507
-3.48392
-3.55566
-3.65931
-3.74453
-4.68056
-5.11316
-5.69535
-6.28136
-6.35156
-6.29877
-6.82214
-6.98062
-7.08594
-7.32499
-7.52008
-7.03641
-7.71653
-8.54465
-9.42708
-9.51276
-9.80669
-10.2533
-10.4383
-10.6498
-10.9635
-11.2333
-9.37235
-10.2696
-11.3467
-12.5574
-12.6684
-13.1123
-13.6443
-13.9705
-14.1871
-14.723
-14.9544
-11.0385
-12.8099
-14.2052
-15.6418
-15.8469
-16.3102
-17.0787
-17.4377
-17.733
-18.3791
-18.7623
-14.0592
-15.3632
-17.0337
-18.7588
-19.0153
-19.6439
-20.4512
-20.8993
-21.2293
-21.902
-22.4624
-16.4622
-17.9545
-19.8639
-21.9063
-22.2013
-22.8615
-23.8883
-24.3462
-24.8311
-25.5502
-26.1604
-18.6685
-20.5359
-22.6113
-25.1005
-25.3944
-26.1685
-27.3287
-27.8832
-28.3661
-29.4018
-29.8153
-23.3647
-25.3686
-27.8708
-30.4593
-30.9157
-31.67
-33.0373
-33.6595
-34.3188
-35.0522
-35.894
-28.4731
-30.5919
-33.3975
-36.4085
-36.6975
-37.7068
-39.197
-39.8832
-40.3869
-41.6035
-42.4011
+2.18926,1000000000,1
+2.40698,1000000000,10
+2.69973,1000000000,20
+2.98741,1000000000,30
+3.07484,1000000000,40
+3.12345,1000000000,50
+3.3095,1000000000,60
+3.3436,1000000000,70
+3.50907,1000000000,80
+3.63294,1000000000,90
+3.60597,1000000000,100
+5.26107,2000000000,1
+4.82669,2000000000,10
+5.38269,2000000000,20
+5.99315,2000000000,30
+6.06524,2000000000,40
+6.25703,2000000000,50
+6.54743,2000000000,60
+6.67694,2000000000,70
+7.07474,2000000000,80
+7.02824,2000000000,90
+7.209,2000000000,100
+6.59924,3000000000,1
+7.22684,3000000000,10
+8.09521,3000000000,20
+8.98376,3000000000,30
+9.10113,3000000000,40
+9.3776,3000000000,50
+9.82997,3000000000,60
+10.0136,3000000000,70
+10.8449,3000000000,80
+10.5341,3000000000,90
+10.8111,3000000000,100
+8.77585,4000000000,1
+9.62086,4000000000,10
+10.7912,4000000000,20
+12.0115,4000000000,30
+12.1332,4000000000,40
+12.536,4000000000,50
+13.1092,4000000000,60
+13.3701,4000000000,70
+14.3251,4000000000,80
+14.1129,4000000000,90
+14.4013,4000000000,100
+11.0356,5000000000,1
+12.054,5000000000,10
+13.5011,5000000000,20
+14.9992,5000000000,30
+15.1898,5000000000,40
+15.6512,5000000000,50
+16.4656,5000000000,60
+16.7078,5000000000,70
+17.0973,5000000000,80
+17.5772,5000000000,90
+18.0253,5000000000,100
+13.2236,6000000000,1
+14.4979,6000000000,10
+16.2099,6000000000,20
+17.9813,6000000000,30
+18.2088,6000000000,40
+18.8038,6000000000,50
+19.6854,6000000000,60
+20.0429,6000000000,70
+20.4363,6000000000,80
+21.1034,6000000000,90
+21.6304,6000000000,100
+15.4662,7000000000,1
+16.8863,7000000000,10
+23.6763,7000000000,20
+20.9637,7000000000,30
+21.2527,7000000000,40
+21.914,7000000000,50
+22.9523,7000000000,60
+23.3932,7000000000,70
+23.8484,7000000000,80
+24.609,7000000000,90
+25.2442,7000000000,100
+17.9756,8000000000,1
+19.6358,8000000000,10
+21.9525,8000000000,20
+24.3094,8000000000,30
+24.6352,8000000000,40
+25.3735,8000000000,50
+26.5613,8000000000,60
+27.079,8000000000,70
+27.6089,8000000000,80
+28.4703,8000000000,90
+29.1595,8000000000,100
+22.921,9000000000,1
+24.8746,9000000000,10
+27.4283,9000000000,20
+30.1189,9000000000,30
+30.4645,9000000000,40
+31.3248,9000000000,50
+29.994,9000000000,60
+33.2314,9000000000,70
+33.9973,9000000000,80
+34.8131,9000000000,90
+35.5923,9000000000,100
+28.0534,10000000000,1
+30.1487,10000000000,10
+33.0312,10000000000,20
+35.9929,10000000000,30
+36.3874,10000000000,40
+37.3111,10000000000,50
+38.8185,10000000000,60
+39.4599,10000000000,70
+37.5857,10000000000,80
+41.176,10000000000,90
+42.0346,10000000000,100
